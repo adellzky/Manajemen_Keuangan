@@ -1,5 +1,7 @@
 <?php
 
+use App\Admin\Controllers\PendapatanController;
+use App\Admin\Controllers\ProjectController;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Route;
 use Dcat\Admin\Admin;
@@ -13,5 +15,7 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
+    $router->resource('/project', ProjectController::class);
+    $router->resource('/pendapatan', PendapatanController::class);
 
 });

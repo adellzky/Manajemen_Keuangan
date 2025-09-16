@@ -16,9 +16,10 @@ return new class extends Migration
             $table->string('nama_klien', 225);
             $table->string('nama_project', 225);
             $table->string('deskripsi', 225)->nullable();
+            $table->bigInteger('harga');
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
-            $table->enum('status', ['proses', 'selesai'])->default('proses');
+            $table->enum('status', ['Proses', 'Selesai'])->default('Proses');
             $table->timestamps();
         });
     }

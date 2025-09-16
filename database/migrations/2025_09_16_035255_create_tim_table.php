@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('no_telp', 225)->nullable();
             $table->string('atm', 225)->nullable();
             $table->integer('norek')->nullable();
-            $table->integer('gaji')->nullable();
+            $table->bigInteger('gaji')->nullable();
             $table->timestamps();
         });
     }

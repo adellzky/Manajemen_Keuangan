@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_project');
             $table->string('sumber', 225);
-            $table->integer('jumlah');
+            $table->bigInteger('jumlah');
             $table->date('tanggal')->nullable();
             $table->string('keterangan', 225)->nullable();
             $table->timestamps();

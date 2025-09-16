@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_tim');
             $table->unsignedBigInteger('id_project');
-            $table->integer('jumlah');
+            $table->bigInteger('jumlah');
             $table->date('tanggal')->nullable();
-            $table->enum('metode_bayar', ['tf', 'cash'])->default('tf');
+            $table->enum('metode_bayar', ['Transfer', 'Cash'])->default('Transfer');
             $table->timestamps();
 
             $table->foreign('id_tim')->references('id')->on('tim')->onDelete('cascade');

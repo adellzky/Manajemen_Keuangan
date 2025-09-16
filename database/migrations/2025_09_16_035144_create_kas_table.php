@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('kas', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_project');
-            $table->integer('jumlah');
-            $table->integer('saldo_akhir');
+            $table->bigInteger('jumlah');
+            $table->bigInteger('saldo_akhir');
             $table->date('tanggal')->nullable();
             $table->string('keterangan', 225)->nullable();
             $table->timestamps();
