@@ -19,6 +19,7 @@ class Project extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'status',
+        'status_bayar',
     ];
 
     // Relasi

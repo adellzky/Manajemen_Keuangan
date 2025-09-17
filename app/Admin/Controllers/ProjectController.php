@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\Project;
+use App\Models\Project;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -22,17 +22,29 @@ class ProjectController extends AdminController
             $grid->column('nama_klien');
             $grid->column('nama_project');
             $grid->column('deskripsi');
-            $grid->column('harga');
+            $grid->column('harga', 'Kesepakatan Harga')->display(function ($val) {
+                return 'Rp ' . number_format($val, 0, ',', '.');
+            });
             $grid->column('tanggal_mulai');
             $grid->column('tanggal_selesai');
             $grid->column('status')->label([
                 'Selesai' => 'success',
                 'Proses' => 'primary',
             ]);
+            $grid->column('status_bayar')->label([
+                'Belum' => 'danger',
+                'Dp' => 'primary',
+                'Lunas' => 'success',
+            ]);
+
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->equal('id');
-
+                $filter->panel()->expand(false);
+                $filter->equal('nama_project', 'Nama Project')
+                    ->select(Project::pluck('nama_project', 'nama_project'));
+                $filter->equal('nama_klien', 'Nama Klien')
+                    ->select(Project::pluck('nama_klien', 'nama_klien'));
+                $filter->between('tanggal_selesai', 'Tanggal Selesai')->date();
             });
         });
     }
@@ -83,6 +95,12 @@ class ProjectController extends AdminController
                     'selesai' => 'Selesai',
                 ])->default('proses')->required();
 
+            $form->radio('status_bayar', 'Status Bayar')
+                ->options([
+                    'Belum' => 'Belum',
+                    'Dp' => 'Dp',
+                    'Lunas' => 'Lunas',
+                ])->default('Belum')->required();
             $form->display('created_at');
             $form->display('updated_at');
         });
