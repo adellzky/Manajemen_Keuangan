@@ -10,9 +10,8 @@ class Project extends Model
     use HasFactory;
 
     protected $table = 'projects';
-    protected $primaryKey = 'id';
     protected $fillable = [
-        'nama_klien',
+        'id_mitra',
         'nama_project',
         'deskripsi',
         'harga',
@@ -23,23 +22,29 @@ class Project extends Model
     ];
 
     // Relasi
-    public function pendapatan()
+    public function mitra()
     {
-        return $this->hasMany(Pendapatan::class, 'id_project');
+        return $this->belongsTo(Mitra::class, 'id_mitra');
     }
 
-    // public function pengeluaran()
-    // {
-    //     return $this->hasMany(Pengeluaran::class, 'id_project');
-    // }
+    public function pendapatan()
+    {
+        return $this->hasMany(Pendapatan::class, 'id_project', 'id');
+    }
 
-    // public function kas()
-    // {
-    //     return $this->hasMany(Kas::class, 'id_project');
-    // }
+    public function pengeluaran()
+    {
+        return $this->hasMany(Pengeluaran::class, 'id_project', 'id');
+    }
 
-    // public function gaji()
-    // {
-    //     return $this->hasMany(Gaji::class, 'id_project');
-    // }
+    public function kas()
+    {
+        return $this->hasMany(Kas::class, 'id_project', 'id');
+    }
+
+    public function gaji()
+    {
+        return $this->hasMany(Gaji::class, 'id_project', 'id');
+    }
+
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_klien', 225);
+            $table->unsignedBigInteger('id_mitra');
             $table->string('nama_project', 225);
             $table->string('deskripsi', 225)->nullable();
             $table->bigInteger('harga');
@@ -22,6 +22,8 @@ return new class extends Migration
             $table->enum('status', ['Proses', 'Selesai'])->default('Proses');
             $table->enum('status_bayar', ['Belum', 'Dp', 'Lunas'])->default('Belum');
             $table->timestamps();
+
+            $table->foreign('id_mitra')->references('id')->on('mitra')->onDelete('cascade');
         });
     }
 

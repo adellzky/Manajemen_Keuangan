@@ -3,6 +3,7 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Project;
+use App\Models\Mitra;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -10,16 +11,10 @@ use Dcat\Admin\Http\Controllers\AdminController;
 
 class ProjectController extends AdminController
 {
-    /**
-     * Make a grid builder.
-     *
-     * @return Grid
-     */
     protected function grid()
     {
-        return Grid::make(new Project(), function (Grid $grid) {
-            $grid->column('id')->sortable();
-            $grid->column('nama_klien');
+        return Grid::make(Project::with(['mitra']), function (Grid $grid) {
+            $grid->column('mitra.instansi', 'Mitra'); // tampilkan nama instansi mitra
             $grid->column('nama_project');
             $grid->column('deskripsi');
             $grid->column('harga', 'Kesepakatan Harga')->display(function ($val) {
@@ -33,57 +28,47 @@ class ProjectController extends AdminController
             ]);
             $grid->column('status_bayar')->label([
                 'Belum' => 'danger',
-                'Dp' => 'primary',
+                'Dp'    => 'primary',
                 'Lunas' => 'success',
             ]);
 
-
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
-                $filter->equal('nama_project', 'Nama Project')
-                    ->select(Project::pluck('nama_project', 'nama_project'));
-                $filter->equal('nama_klien', 'Nama Klien')
-                    ->select(Project::pluck('nama_klien', 'nama_klien'));
+                $filter->equal('id_mitra', 'Mitra')
+                    ->select(Mitra::pluck('instansi', 'id'));
+                $filter->like('nama_project', 'Nama Project');
+                $filter->like('nama_klien', 'Nama Klien');
                 $filter->between('tanggal_selesai', 'Tanggal Selesai')->date();
             });
         });
     }
 
-    /**
-     * Make a show builder.
-     *
-     * @param mixed $id
-     *
-     * @return Show
-     */
     protected function detail($id)
     {
         return Show::make($id, new Project(), function (Show $show) {
             $show->field('id');
-            $show->field('nama_klien');
+            $show->field('mitra.instansi', 'Mitra');
             $show->field('nama_project');
             $show->field('deskripsi');
             $show->field('harga');
             $show->field('tanggal_mulai');
             $show->field('tanggal_selesai');
             $show->field('status');
+            $show->field('status_bayar');
             $show->field('created_at');
             $show->field('updated_at');
         });
     }
 
-    /**
-     * Make a form builder.
-     *
-     * @return Form
-     */
     protected function form()
     {
         return Form::make(new Project(), function (Form $form) {
             $form->display('id');
-            $form->text('nama_klien');
+            $form->select('id_mitra', 'Mitra')
+                ->options(Mitra::pluck('instansi', 'id'))
+                ->required();
             $form->text('nama_project');
-            $form->text('deskripsi');
+            $form->textarea('deskripsi');
             $form->currency('harga', 'Harga')
                 ->symbol('Rp')
                 ->required();
@@ -91,16 +76,17 @@ class ProjectController extends AdminController
             $form->date('tanggal_selesai');
             $form->radio('status', 'Status')
                 ->options([
-                    'proses' => 'Proses',
-                    'selesai' => 'Selesai',
-                ])->default('proses')->required();
+                    'Proses'  => 'Proses',
+                    'Selesai' => 'Selesai',
+                ])->default('Proses')->required();
 
             $form->radio('status_bayar', 'Status Bayar')
                 ->options([
                     'Belum' => 'Belum',
-                    'Dp' => 'Dp',
+                    'Dp'    => 'Dp',
                     'Lunas' => 'Lunas',
                 ])->default('Belum')->required();
+
             $form->display('created_at');
             $form->display('updated_at');
         });

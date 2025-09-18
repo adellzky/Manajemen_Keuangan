@@ -17,7 +17,6 @@ return new class extends Migration
             $table->bigInteger('jumlah');
             $table->date('tanggal')->nullable();
             $table->string('keterangan', 225)->nullable();
-            $table->bigInteger('total_pengeluaran')->nullable();
             $table->timestamps();
 
             $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');

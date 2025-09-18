@@ -14,13 +14,14 @@ return new class extends Migration
         Schema::create('pendapatan', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_project');
-            $table->string('sumber', 225);
+            $table->unsignedBigInteger('id_mitra');
             $table->bigInteger('jumlah');
             $table->date('tanggal')->nullable();
             $table->string('keterangan', 225)->nullable();
             $table->timestamps();
 
             $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');
+            $table->foreign('id_mitra')->references('id')->on('mitra')->onDelete('cascade');
         });
     }
 

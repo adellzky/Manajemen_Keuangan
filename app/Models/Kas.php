@@ -10,7 +10,6 @@ class Kas extends Model
 
     use HasFactory;
     protected $table = 'kas';
-
     protected $fillable = [
         'id_project',
         'jumlah',

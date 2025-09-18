@@ -13,7 +13,7 @@ class Pendapatan extends Model
     protected $primaryKey = 'id_pendapatan';
     protected $fillable = [
         'id_project',
-        'sumber',
+        'id_mitra',
         'jumlah',
         'tanggal',
         'keterangan',
@@ -22,5 +22,10 @@ class Pendapatan extends Model
     public function project()
     {
         return $this->belongsTo(Project::class, 'id_project');
+    }
+
+    public function mitra()
+    {
+        return $this->belongsTo(Mitra::class, 'id_mitra');
     }
 }
