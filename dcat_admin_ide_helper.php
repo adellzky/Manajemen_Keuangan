@@ -60,9 +60,11 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection nama_klien
      * @property Grid\Column|Collection nama_project
      * @property Grid\Column|Collection deskripsi
+     * @property Grid\Column|Collection harga
      * @property Grid\Column|Collection tanggal_mulai
      * @property Grid\Column|Collection tanggal_selesai
      * @property Grid\Column|Collection status
+     * @property Grid\Column|Collection status_bayar
      * @property Grid\Column|Collection nama
      * @property Grid\Column|Collection no_telp
      * @property Grid\Column|Collection atm
@@ -119,9 +121,11 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection nama_klien(string $label = null)
      * @method Grid\Column|Collection nama_project(string $label = null)
      * @method Grid\Column|Collection deskripsi(string $label = null)
+     * @method Grid\Column|Collection harga(string $label = null)
      * @method Grid\Column|Collection tanggal_mulai(string $label = null)
      * @method Grid\Column|Collection tanggal_selesai(string $label = null)
      * @method Grid\Column|Collection status(string $label = null)
+     * @method Grid\Column|Collection status_bayar(string $label = null)
      * @method Grid\Column|Collection nama(string $label = null)
      * @method Grid\Column|Collection no_telp(string $label = null)
      * @method Grid\Column|Collection atm(string $label = null)
@@ -183,9 +187,11 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection nama_klien
      * @property Show\Field|Collection nama_project
      * @property Show\Field|Collection deskripsi
+     * @property Show\Field|Collection harga
      * @property Show\Field|Collection tanggal_mulai
      * @property Show\Field|Collection tanggal_selesai
      * @property Show\Field|Collection status
+     * @property Show\Field|Collection status_bayar
      * @property Show\Field|Collection nama
      * @property Show\Field|Collection no_telp
      * @property Show\Field|Collection atm
@@ -242,9 +248,11 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection nama_klien(string $label = null)
      * @method Show\Field|Collection nama_project(string $label = null)
      * @method Show\Field|Collection deskripsi(string $label = null)
+     * @method Show\Field|Collection harga(string $label = null)
      * @method Show\Field|Collection tanggal_mulai(string $label = null)
      * @method Show\Field|Collection tanggal_selesai(string $label = null)
      * @method Show\Field|Collection status(string $label = null)
+     * @method Show\Field|Collection status_bayar(string $label = null)
      * @method Show\Field|Collection nama(string $label = null)
      * @method Show\Field|Collection no_telp(string $label = null)
      * @method Show\Field|Collection atm(string $label = null)
