@@ -20,7 +20,7 @@ class GajiController extends AdminController
     protected function grid()
     {
         return Grid::make(new Gaji(), function (Grid $grid) {
-            $grid->column('id')->sortable();
+            // $grid->column('id')->sortable();
             $grid->column('id_tim', 'Karyawan')
                 ->display(function ($id) {
                     return Tim::find($id)?->nama ?? '-';
@@ -38,8 +38,15 @@ class GajiController extends AdminController
             // $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
+                $filter->panel()->expand(false);
                 $filter->equal('id_tim', 'Karyawan')->select(Tim::pluck('nama', 'id'));
                 $filter->equal('id_project', 'Project')->select(Project::pluck('nama_project', 'id'));
+                $filter->month('tanggal', 'Bulan Gaji');
+                $filter->equal('metode_bayar', 'Metode Bayar')->select([
+                    'Transfer' => 'Transfer',
+                    'Cash' => 'Cash',
+                ]);
+
 
             });
         });
@@ -55,7 +62,7 @@ class GajiController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Gaji(), function (Show $show) {
-            $show->field('id');
+            // $show->field('id');
             $show->field('id_tim', 'Karyawan')->as(function ($id) {
                 return Tim::find($id)?->nama ?? '-';
             });
@@ -82,11 +89,11 @@ class GajiController extends AdminController
         return Form::make(new Gaji(), function (Form $form) {
             $form->display('id');
 
-            $form->select('id_tim')
+            $form->select('id_tim', 'Tim')
             ->options(Tim::pluck('nama', 'id'))
             ->required();
 
-            $form->select('id_project')
+            $form->select('id_project', 'Project')
             ->options(\App\Models\Project::pluck('nama_project', 'id'))
             ->required();
 
