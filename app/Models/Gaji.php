@@ -10,7 +10,6 @@ class Gaji extends Model
 {
 	use HasDateTimeFormatter;
     protected $table = 'gaji';
-
     protected $fillable = [
         'id_tim',
         'id_project',
@@ -26,6 +25,8 @@ class Gaji extends Model
     {
         return $this->belongsTo(Tim::class, 'id_tim');
     }
+
+
     public function project()
     {
         return $this->belongsTo(Project::class, 'id_project');

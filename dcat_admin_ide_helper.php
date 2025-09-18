@@ -49,7 +49,10 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection metode_bayar
      * @property Grid\Column|Collection saldo_akhir
      * @property Grid\Column|Collection keterangan
+     * @property Grid\Column|Collection nama
+     * @property Grid\Column|Collection alamat
      * @property Grid\Column|Collection email
+     * @property Grid\Column|Collection telepon
      * @property Grid\Column|Collection token
      * @property Grid\Column|Collection sumber
      * @property Grid\Column|Collection tokenable_type
@@ -65,7 +68,6 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection tanggal_selesai
      * @property Grid\Column|Collection status
      * @property Grid\Column|Collection status_bayar
-     * @property Grid\Column|Collection nama
      * @property Grid\Column|Collection no_telp
      * @property Grid\Column|Collection atm
      * @property Grid\Column|Collection norek
@@ -110,7 +112,10 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection metode_bayar(string $label = null)
      * @method Grid\Column|Collection saldo_akhir(string $label = null)
      * @method Grid\Column|Collection keterangan(string $label = null)
+     * @method Grid\Column|Collection nama(string $label = null)
+     * @method Grid\Column|Collection alamat(string $label = null)
      * @method Grid\Column|Collection email(string $label = null)
+     * @method Grid\Column|Collection telepon(string $label = null)
      * @method Grid\Column|Collection token(string $label = null)
      * @method Grid\Column|Collection sumber(string $label = null)
      * @method Grid\Column|Collection tokenable_type(string $label = null)
@@ -126,7 +131,6 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection tanggal_selesai(string $label = null)
      * @method Grid\Column|Collection status(string $label = null)
      * @method Grid\Column|Collection status_bayar(string $label = null)
-     * @method Grid\Column|Collection nama(string $label = null)
      * @method Grid\Column|Collection no_telp(string $label = null)
      * @method Grid\Column|Collection atm(string $label = null)
      * @method Grid\Column|Collection norek(string $label = null)
@@ -176,7 +180,10 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection metode_bayar
      * @property Show\Field|Collection saldo_akhir
      * @property Show\Field|Collection keterangan
+     * @property Show\Field|Collection nama
+     * @property Show\Field|Collection alamat
      * @property Show\Field|Collection email
+     * @property Show\Field|Collection telepon
      * @property Show\Field|Collection token
      * @property Show\Field|Collection sumber
      * @property Show\Field|Collection tokenable_type
@@ -192,7 +199,6 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection tanggal_selesai
      * @property Show\Field|Collection status
      * @property Show\Field|Collection status_bayar
-     * @property Show\Field|Collection nama
      * @property Show\Field|Collection no_telp
      * @property Show\Field|Collection atm
      * @property Show\Field|Collection norek
@@ -237,7 +243,10 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection metode_bayar(string $label = null)
      * @method Show\Field|Collection saldo_akhir(string $label = null)
      * @method Show\Field|Collection keterangan(string $label = null)
+     * @method Show\Field|Collection nama(string $label = null)
+     * @method Show\Field|Collection alamat(string $label = null)
      * @method Show\Field|Collection email(string $label = null)
+     * @method Show\Field|Collection telepon(string $label = null)
      * @method Show\Field|Collection token(string $label = null)
      * @method Show\Field|Collection sumber(string $label = null)
      * @method Show\Field|Collection tokenable_type(string $label = null)
@@ -253,7 +262,6 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection tanggal_selesai(string $label = null)
      * @method Show\Field|Collection status(string $label = null)
      * @method Show\Field|Collection status_bayar(string $label = null)
-     * @method Show\Field|Collection nama(string $label = null)
      * @method Show\Field|Collection no_telp(string $label = null)
      * @method Show\Field|Collection atm(string $label = null)
      * @method Show\Field|Collection norek(string $label = null)
