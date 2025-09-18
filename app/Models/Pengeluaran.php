@@ -17,6 +17,7 @@ protected $keyType = 'int';
         'jumlah',
         'tanggal',
         'keterangan',
+        'total_pengeluaran',
     ];
 
     public function project()

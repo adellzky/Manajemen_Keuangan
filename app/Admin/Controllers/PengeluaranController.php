@@ -16,14 +16,13 @@ class PengeluaranController extends AdminController
      */
     protected function grid()
     {
-        return Grid::make(new Pengeluaran(), function (Grid $grid) {
-            $grid->column('id', 'ID')->sortable();   
+        return Grid::make(Pengeluaran::with(['project']), function (Grid $grid) {
+            $grid->column('id', 'ID')->sortable();
             $grid->column('project.nama_project', 'Project');
             $grid->column('jumlah', 'Jumlah')->display(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
             $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('keterangan', 'Keterangan');
-            $grid->column('created_at', 'Dibuat');
-            $grid->column('updated_at', 'Diperbarui')->sortable();
+
 
             // Filter
             $grid->filter(function (Grid\Filter $filter) {
@@ -37,20 +36,20 @@ class PengeluaranController extends AdminController
     /**
      * Detail builder.
      */
-protected function detail($id)
-{
-    return Show::make(new Pengeluaran(), function (Show $show) {
-        $show->field('id', 'ID');
-        $show->field('project', 'Project')->as(function ($project) {
-            return $project ? $project->nama_project : '-';
-        });
-        $show->field('jumlah', 'Jumlah')->as(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
-        $show->field('tanggal', 'Tanggal');
-        $show->field('keterangan', 'Keterangan');
-        $show->field('created_at', 'Dibuat');
-        $show->field('updated_at', 'Diperbarui');
-    })->findOrFail($id);
-}
+    protected function detail($id)
+    {
+        return Show::make(new Pengeluaran(), function (Show $show) {
+            $show->field('id', 'ID');
+            $show->field('project', 'Project')->as(function ($project) {
+                return $project ? $project->nama_project : '-';
+            });
+            $show->field('jumlah', 'Jumlah')->as(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
+            $show->field('tanggal', 'Tanggal');
+            $show->field('keterangan', 'Keterangan');
+            $show->field('created_at', 'Dibuat');
+            $show->field('updated_at', 'Diperbarui');
+        })->findOrFail($id);
+    }
 
 
 
@@ -68,10 +67,7 @@ protected function detail($id)
 
             $form->currency('jumlah', 'Jumlah')
                 ->symbol('Rp')
-                ->required()
-                ->saving(function ($value) {
-                    return $value ? (int) preg_replace('/[^0-9]/', '', $value) : 0;
-                });
+                ->required();
 
             $form->date('tanggal', 'Tanggal')
                 ->default(now())
@@ -81,6 +77,19 @@ protected function detail($id)
 
             $form->display('created_at', 'Dibuat');
             $form->display('updated_at', 'Diperbarui');
+
+            // Hook setelah data tersimpan
+            $form->saved(function (Form $form, $result) {
+                $pengeluaran = $form->model();
+
+                // hitung total pengeluaran untuk project terkait
+                $total = \App\Models\Pengeluaran::where('id_project', $pengeluaran->id_project)
+                    ->sum('jumlah');
+
+                // update hanya record yang baru saja dibuat/diupdate
+                $pengeluaran->update(['total_pengeluaran' => $total]);
+            });
         });
     }
+
 }

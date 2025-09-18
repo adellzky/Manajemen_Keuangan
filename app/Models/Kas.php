@@ -2,10 +2,26 @@
 
 namespace App\Models;
 
-use Dcat\Admin\Traits\HasDateTimeFormatter;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Kas extends Model
 {
-	use HasDateTimeFormatter;    }
+
+    use HasFactory;
+    protected $table = 'kas';
+
+    protected $fillable = [
+        'id_project',
+        'jumlah',
+        'tanggal',
+        'keterangan',
+        'saldo_akhir',
+    ];
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'id_project');
+    }
+
+}
