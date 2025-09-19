@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('id_mitra');
             $table->string('nama_project', 225);
+            $table->enum('kategori', ['Jasa', 'Produk'])->default('Jasa');
             $table->string('deskripsi', 225)->nullable();
             $table->bigInteger('harga');
             $table->date('tanggal_mulai')->nullable();

@@ -15,6 +15,7 @@ class ProjectController extends AdminController
     {
         return Grid::make(Project::with(['mitra']), function (Grid $grid) {
             $grid->column('mitra.instansi', 'Mitra');
+            $grid->column('kategori');
             $grid->column('nama_project');
             $grid->column('deskripsi')->display(function ($val) {
                return \Illuminate\Support\Str::limit($val, 30, '...');
@@ -50,6 +51,7 @@ class ProjectController extends AdminController
         return Show::make($id,Project::with(['mitra']), function (Show $show) {
             $show->field('id');
             $show->field('mitra.instansi', 'Mitra');
+            $show->field('kategori');
             $show->field('nama_project');
             $show->field('deskripsi');
             $show->field('harga');
@@ -69,6 +71,11 @@ class ProjectController extends AdminController
             $form->select('id_mitra', 'Mitra')
                 ->options(Mitra::pluck('instansi', 'id'))
                 ->required();
+            $form->radio('kategori', 'Kategori')
+                ->options([
+                    'Jasa'  => 'Jasa',
+                    'Produk' => 'Produk',
+                ])->default('Proses')->required();
             $form->text('nama_project');
             $form->textarea('deskripsi');
             $form->currency('harga', 'Harga')
