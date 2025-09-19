@@ -22,158 +22,194 @@ class AdminTablesSeeder extends Seeder
                 [
                     "id" => 2,
                     "parent_id" => 0,
-                    "order" => 8,
+                    "order" => 11,
                     "title" => "Admin",
                     "icon" => "feather icon-settings",
                     "uri" => "",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 3,
                     "parent_id" => 2,
-                    "order" => 9,
+                    "order" => 12,
                     "title" => "Users",
                     "icon" => "",
                     "uri" => "auth/users",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 4,
                     "parent_id" => 2,
-                    "order" => 10,
+                    "order" => 13,
                     "title" => "Roles",
                     "icon" => "",
                     "uri" => "auth/roles",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 5,
                     "parent_id" => 2,
-                    "order" => 11,
+                    "order" => 14,
                     "title" => "Permission",
                     "icon" => "",
                     "uri" => "auth/permissions",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 6,
                     "parent_id" => 2,
-                    "order" => 12,
+                    "order" => 15,
                     "title" => "Menu",
                     "icon" => "",
                     "uri" => "auth/menu",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 7,
                     "parent_id" => 2,
-                    "order" => 13,
+                    "order" => 16,
                     "title" => "Extensions",
                     "icon" => "",
                     "uri" => "auth/extensions",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 9,
-                    "parent_id" => 0,
-                    "order" => 2,
+                    "parent_id" => 14,
+                    "order" => 5,
                     "title" => "Pendapatan",
                     "icon" => "fa-download",
                     "uri" => "/pendapatan",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:24:22",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 04:00:34"
                 ],
                 [
                     "id" => 10,
                     "parent_id" => 0,
-                    "order" => 4,
-                    "title" => "Kas Perusahaan",
+                    "order" => 2,
+                    "title" => "Keuangan Perusahaan",
                     "icon" => "fa-building",
                     "uri" => "/kas",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:24:57",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 11,
-                    "parent_id" => 0,
-                    "order" => 3,
+                    "parent_id" => 14,
+                    "order" => 6,
                     "title" => "Pengeluaran",
                     "icon" => "fa-upload",
                     "uri" => "/pengeluaran",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:27:40",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 04:00:34"
                 ],
                 [
                     "id" => 12,
-                    "parent_id" => 0,
-                    "order" => 6,
+                    "parent_id" => 19,
+                    "order" => 9,
                     "title" => "Gaji",
                     "icon" => "fa-cc",
                     "uri" => "/gaji",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:28:21",
-                    "updated_at" => "2025-09-16 04:34:56"
-                ],
-                [
-                    "id" => 13,
-                    "parent_id" => 0,
-                    "order" => 5,
-                    "title" => "Tim",
-                    "icon" => "fa-users",
-                    "uri" => "/tim",
-                    "extension" => "",
-                    "show" => 1,
-                    "created_at" => "2025-09-16 04:28:44",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 14,
                     "parent_id" => 0,
-                    "order" => 1,
+                    "order" => 3,
                     "title" => "Project",
                     "icon" => "fa-cubes",
                     "uri" => "/project",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:29:39",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
                 ],
                 [
                     "id" => 15,
                     "parent_id" => 0,
-                    "order" => 7,
+                    "order" => 10,
                     "title" => "Rekap Kuangan",
                     "icon" => "fa-dollar",
                     "uri" => "/rekap-keuangan",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:34:07",
-                    "updated_at" => "2025-09-16 04:34:56"
+                    "updated_at" => "2025-09-19 03:58:24"
+                ],
+                [
+                    "id" => 16,
+                    "parent_id" => 0,
+                    "order" => 1,
+                    "title" => "Mitra",
+                    "icon" => "fa-address-book",
+                    "uri" => "/mitra",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-19 03:50:38",
+                    "updated_at" => "2025-09-19 03:58:24"
+                ],
+                [
+                    "id" => 17,
+                    "parent_id" => 14,
+                    "order" => 4,
+                    "title" => "Detail Project",
+                    "icon" => "fa-joomla",
+                    "uri" => "/project",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-19 03:54:05",
+                    "updated_at" => "2025-09-19 03:58:24"
+                ],
+                [
+                    "id" => 18,
+                    "parent_id" => 19,
+                    "order" => 8,
+                    "title" => "Tim",
+                    "icon" => "fa-user-circle",
+                    "uri" => "/tim",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-19 03:56:21",
+                    "updated_at" => "2025-09-19 03:58:24"
+                ],
+                [
+                    "id" => 19,
+                    "parent_id" => 0,
+                    "order" => 7,
+                    "title" => "Tim",
+                    "icon" => "fa-users",
+                    "uri" => NULL,
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-19 03:57:34",
+                    "updated_at" => "2025-09-19 03:58:24"
                 ]
             ]
         );
@@ -315,15 +351,33 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "role_id" => 1,
-                    "menu_id" => 13,
-                    "created_at" => "2025-09-16 04:28:44",
-                    "updated_at" => "2025-09-16 04:28:44"
-                ],
-                [
-                    "role_id" => 1,
                     "menu_id" => 14,
                     "created_at" => "2025-09-16 04:29:39",
                     "updated_at" => "2025-09-16 04:29:39"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 16,
+                    "created_at" => "2025-09-19 03:50:48",
+                    "updated_at" => "2025-09-19 03:50:48"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 17,
+                    "created_at" => "2025-09-19 03:54:05",
+                    "updated_at" => "2025-09-19 03:54:05"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 18,
+                    "created_at" => "2025-09-19 03:56:21",
+                    "updated_at" => "2025-09-19 03:56:21"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 19,
+                    "created_at" => "2025-09-19 03:57:34",
+                    "updated_at" => "2025-09-19 03:57:34"
                 ]
             ]
         );

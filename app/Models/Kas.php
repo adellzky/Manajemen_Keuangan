@@ -11,16 +11,25 @@ class Kas extends Model
     use HasFactory;
     protected $table = 'kas';
     protected $fillable = [
-        'id_project',
         'jumlah',
         'tanggal',
         'keterangan',
         'saldo_akhir',
     ];
 
-    public function project()
+    public function pendapatan()
     {
-        return $this->belongsTo(Project::class, 'id_project');
+        return $this->hasMany(Pendapatan::class, 'id_project', 'id');
+    }
+
+    public function pengeluaran()
+    {
+        return $this->hasMany(Pengeluaran::class, 'id_project', 'id');
+    }
+
+    public function gaji()
+    {
+        return $this->hasMany(Gaji::class, 'id_project', 'id');
     }
 
 }
