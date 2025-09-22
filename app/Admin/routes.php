@@ -9,8 +9,9 @@ use App\Admin\Controllers\MitraController;
 use App\Admin\Controllers\PengeluaranController;
 use App\Admin\Controllers\TimController;
 use Illuminate\Routing\Router;
-use Illuminate\Support\Facades\Route;
 use Dcat\Admin\Admin;
+use Illuminate\Support\Facades\Route;
+
 
 Admin::routes();
 
@@ -21,14 +22,19 @@ Route::group([
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
+
     $router->resource('/mitra', MitraController::class);
     $router->resource('/project', ProjectController::class);
+    $router->get('pendapatan/pdf/{id?}', [PendapatanController::class, 'exportPdf'])->name('pendapatan.pdf');
     $router->resource('/pendapatan', PendapatanController::class);
     $router->resource('/kas', KasController::class);
+    $router->get('pengeluaran/pdf', [PengeluaranController::class, 'exportPdf']);
     $router->resource('/pengeluaran', PengeluaranController::class);
     $router->resource('/tim', TimController::class);
     $router->resource('/gaji', GajiController::class);
     $router->resource('/keuangan', KeuanganController::class);
-    Route::get('tim/{id}/slip', [TimController::class, 'slip']);
+    $router->get('tim/{id}/slip', [TimController::class, 'slip']);
+
 
 });
+

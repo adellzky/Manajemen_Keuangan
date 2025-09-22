@@ -8,12 +8,15 @@ use App\Models\Kas;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Dcat\Admin\Http\Controllers\AdminController;
 
 class KasController extends AdminController
 {
     /**
-     * Grid untuk data Kas
+     * Grid untuk data Kas (rekap + manual kas)
      */
     protected function grid()
     {
@@ -58,20 +61,17 @@ class KasController extends AdminController
         });
     }
 
+
+
     /**
-     * Form untuk tambah/edit Kas
+     * Form untuk tambah/edit Kas manual
      */
     protected function form()
     {
         return Form::make(new Kas(), function (Form $form) {
             $form->display('id', 'ID');
 
-            $form->select('id_project', 'Project')
-                ->options(Project::pluck('nama_project', 'id')->toArray())
-                ->required();
-
-            // Input jumlah dengan currency
-            $form->currency('jumlah', 'Jumlah')
+            $form->currency('jumlah', 'Kas Manual (Modal/Pinjaman)')
                 ->symbol('Rp')
                 ->required();
 
@@ -81,7 +81,7 @@ class KasController extends AdminController
 
             $form->textarea('keterangan', 'Keterangan');
 
-            $form->display('saldo_akhir', 'Saldo Akhir');
+            $form->display('saldo_akhir', 'Saldo Akhir (otomatis)');
 
             $form->saving(function (Form $form) {
                 if (!$form->saldo_akhir) {

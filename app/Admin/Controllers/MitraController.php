@@ -18,13 +18,12 @@ class MitraController extends AdminController
     protected function grid()
     {
         return Grid::make(new Mitra(), function (Grid $grid) {
-            $grid->column('id')->sortable();
             $grid->column('instansi', 'Instansi');
             $grid->column('nama', 'Nama');
             $grid->column('alamat', 'Alamat');
             $grid->column('email', 'Email');
             $grid->column('telepon', 'Telepon');
-            $grid->column('rekening', 'Rekening');
+            $grid->column('rekening', 'Bank');
             $grid->column('norek', 'No. Rekening');
 
             $grid->filter(function (Grid\Filter $filter) {

@@ -26,9 +26,7 @@ class KeuanganController extends AdminController
             $grid->model()
                 ->withSum('pendapatan', 'jumlah')
                 ->withSum('pengeluaran', 'jumlah')
-                ->withSum('kas', 'jumlah')
                 ->withSum('gaji', 'jumlah');
-
 
             $grid->column('id', 'ID')->sortable();
             $grid->column('nama_project', 'Nama Project');
@@ -39,9 +37,6 @@ class KeuanganController extends AdminController
             $grid->column('pengeluaran_sum_jumlah', 'Total Pengeluaran')
                 ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
 
-            $grid->column('kas_sum_jumlah', 'Kas')
-                ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
-
             $grid->column('gaji_sum_jumlah', 'Gaji')
                 ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
 
@@ -50,10 +45,9 @@ class KeuanganController extends AdminController
             $grid->column('sisa', 'Sisa')->display(function () {
                 $pendapatan  = (float) ($this->pendapatan_sum_jumlah  ?? 0);
                 $pengeluaran = (float) ($this->pengeluaran_sum_jumlah ?? 0);
-                $kas         = (float) ($this->kas_sum_jumlah         ?? 0);
                 $gaji        = (float) ($this->gaji_sum_jumlah        ?? 0);
 
-                $sisa = $pendapatan - ($pengeluaran + $kas + $gaji);
+                $sisa = $pendapatan - ($pengeluaran + $gaji);
 
                 return number_format($sisa, 0, ',', '.');
             })->sortable();

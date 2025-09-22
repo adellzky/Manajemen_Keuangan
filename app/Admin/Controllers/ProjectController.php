@@ -14,14 +14,17 @@ class ProjectController extends AdminController
     protected function grid()
     {
         return Grid::make(Project::with(['mitra']), function (Grid $grid) {
-            $grid->column('mitra.instansi', 'Mitra'); // tampilkan nama instansi mitra
+            $grid->column('mitra.instansi', 'Mitra');
+            $grid->column('kategori');
             $grid->column('nama_project');
-            $grid->column('deskripsi');
-            $grid->column('harga', 'Kesepakatan Harga')->display(function ($val) {
+            $grid->column('deskripsi')->display(function ($val) {
+               return \Illuminate\Support\Str::limit($val, 30, '...');
+            });
+            $grid->column('harga', 'Harga')->display(function ($val) {
                 return 'Rp ' . number_format($val, 0, ',', '.');
             });
-            $grid->column('tanggal_mulai');
-            $grid->column('tanggal_selesai');
+            $grid->column('tanggal_mulai', 'Mulai');
+            $grid->column('tanggal_selesai', 'Selesai');
             $grid->column('status')->label([
                 'Selesai' => 'success',
                 'Proses' => 'primary',
@@ -45,9 +48,10 @@ class ProjectController extends AdminController
 
     protected function detail($id)
     {
-        return Show::make($id, new Project(), function (Show $show) {
+        return Show::make($id,Project::with(['mitra']), function (Show $show) {
             $show->field('id');
             $show->field('mitra.instansi', 'Mitra');
+            $show->field('kategori');
             $show->field('nama_project');
             $show->field('deskripsi');
             $show->field('harga');
@@ -67,6 +71,11 @@ class ProjectController extends AdminController
             $form->select('id_mitra', 'Mitra')
                 ->options(Mitra::pluck('instansi', 'id'))
                 ->required();
+            $form->radio('kategori', 'Kategori')
+                ->options([
+                    'Jasa'  => 'Jasa',
+                    'Produk' => 'Produk',
+                ])->default('Proses')->required();
             $form->text('nama_project');
             $form->textarea('deskripsi');
             $form->currency('harga', 'Harga')

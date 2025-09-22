@@ -13,14 +13,11 @@ return new class extends Migration
     {
         Schema::create('kas', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_project');
             $table->bigInteger('jumlah');
-            $table->bigInteger('saldo_akhir');
+            $table->bigInteger('saldo_akhir')->default(0);
             $table->date('tanggal')->nullable();
             $table->string('keterangan', 225)->nullable();
             $table->timestamps();
-
-            $table->foreign('id_project')->references('id')->on('projects')->onDelete('cascade');
         });
     }
 

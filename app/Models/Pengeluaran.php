@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Pengeluaran extends Model
 {
 protected $table = 'pengeluaran';
-protected $primaryKey = 'id'; // atau 'id_pengeluaran' sesuai DB
+protected $primaryKey = 'id'; 
 public $incrementing = true;
 protected $keyType = 'int';
 
