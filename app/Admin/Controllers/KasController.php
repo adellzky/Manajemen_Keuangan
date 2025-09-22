@@ -22,7 +22,6 @@ class KasController extends AdminController
     protected function grid()
     {
         return Grid::make(new Kas(), function (Grid $grid) {
-            // --- konfigurasi pagination manual ---
             $perPage = 10;
             $page = (int) request()->get('page', 1);
 
