@@ -85,45 +85,225 @@ class GajiController extends AdminController
      * @return Form
      */
     protected function form()
-    {
-        return Form::make(new Gaji(), function (Form $form) {
-            $form->display('id');
+{
+    return Form::make(new Gaji(), function (Form $form) {
+        $form->display('id');
 
-            $form->select('id_tim', 'Tim')
-            ->options(Tim::pluck('nama', 'id'))
+        $form->select('id_project', 'Project')
+            ->options(Project::pluck('nama_project', 'id'))
             ->required();
 
-            $form->select('id_project', 'Project')
-            ->options(\App\Models\Project::pluck('nama_project', 'id'))
-            ->required();
-
-            $form->currency('jumlah', 'Jumlah')
+        $form->currency('total_gaji', 'Total Gaji')
             ->symbol('Rp')
-            ->saving(function ($value) {
-                //langsung angka penuh
-                return (int) str_replace(',', '', $value);
-            });
+            ->required();
 
-            $form->date('tanggal')->default(now());
-            $form->select('metode_bayar')->options([
-            'Transfer' => 'Transfer',
-            'Cash' => 'Cash',
-            ])->default('Transfer');
+        $form->table('pembagian', 'Pembagian Gaji', function ($table) {
+            $table->select('id_tim', 'Karyawan')
+                ->options(Tim::pluck('nama', 'id'))
+                ->required();
 
-
-            $form->display('created_at');
-            $form->display('updated_at');
-
-           $form->saved(function (Form $form, $result) {
-                $tim = \App\Models\Tim::find($form->id_tim);
-                if ($tim) {
-                    $total = \App\Models\Gaji::where('id_tim', $tim->id)->sum('jumlah');
-                    $tim->gaji = $total;
-                    $tim->save();
-                }
-            });
-
-
+            $table->currency('jumlah', 'Jumlah')
+                ->symbol('Rp');
+        })->value(function () use ($form) {
+            if ($form->model()->exists) {
+                return \App\Models\Gaji::where('id_project', $form->model()->id_project)
+                    ->where('tanggal', $form->model()->tanggal)
+                    ->get(['id_tim', 'jumlah'])
+                    ->toArray();
+            }
+            return [];
         });
+
+
+        $form->html('<div id="sisa-gaji" style="font-weight:bold;color:red;margin:10px 0;"></div>');
+
+        \Dcat\Admin\Admin::script(<<<'JS'
+        function parseRupiah(val) {
+            if (!val) return 0;
+            val = val.toString().trim();
+
+            val = val.replace(/[^\d.,]/g, '');
+
+            const hasDot = val.indexOf('.') !== -1;
+            const hasComma = val.indexOf(',') !== -1;
+
+            if (hasDot && hasComma) {
+                const lastDot = val.lastIndexOf('.');
+                const lastComma = val.lastIndexOf(',');
+                if (lastDot > lastComma) {
+                    val = val.replace(/,/g, '');
+                    return parseFloat(val) || 0;
+                } else {
+                    val = val.replace(/\./g, '').replace(',', '.');
+                    return parseFloat(val) || 0;
+                }
+            }
+            if (hasComma && !hasDot) {
+                const parts = val.split(',');
+                if (parts[1] && parts[1].length === 2) {
+                    val = val.replace(/\./g, '').replace(',', '.');
+                    return parseFloat(val) || 0;
+                } else {
+                    val = val.replace(/,/g, '');
+                    return parseFloat(val) || 0;
+                }
+            }
+
+            if (hasDot && !hasComma) {
+                const parts = val.split('.');
+                if (parts[1] && parts[1].length === 2) {
+                    return parseFloat(val) || 0;
+                } else {
+                    val = val.replace(/\./g, '');
+                    return parseFloat(val) || 0;
+                }
+            }
+
+            return parseFloat(val) || 0;
+        }
+
+        function hitungSisaGaji() {
+            let total = parseRupiah($('input[name="total_gaji"]').val());
+            let sum = 0;
+            $('input[name^="pembagian"][name$="[jumlah]"]').each(function(){
+                sum += parseRupiah($(this).val());
+            });
+            let sisa = total - sum;
+            $('#sisa-gaji').text('Sisa Gaji: Rp ' + sisa.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+            if (Math.abs(sisa) > 0.0001) {
+                $('#sisa-gaji').css('color','red');
+            } else {
+                $('#sisa-gaji').css('color','green');
+            }
+        }
+
+        $(document).on('input', 'input[name="total_gaji"], input[name^="pembagian"][name$="[jumlah]"]', function(){
+            hitungSisaGaji();
+        });
+
+        // jalankan pada load
+        $(document).ready(function(){
+            hitungSisaGaji();
+        });
+        JS
+                );
+
+                $form->date('tanggal')->default(now());
+                $form->select('metode_bayar')->options([
+                    'Transfer' => 'Transfer',
+                    'Cash'     => 'Cash',
+                ])->default('Transfer');
+
+                $form->display('created_at');
+                $form->display('updated_at');
+
+                $form->ignore(['pembagian']);
+
+                $form->saving(function (Form $form) {
+    $parseCurrencyToInt = function($val) {
+        $s = trim($val ?? '');
+        $s = preg_replace('/[^\d\.,]/', '', $s);
+
+        $hasDot = strpos($s, '.') !== false;
+        $hasComma = strpos($s, ',') !== false;
+
+        if ($hasDot && $hasComma) {
+            if (strrpos($s, '.') > strrpos($s, ',')) {
+                $s = str_replace(',', '', $s);
+                $float = (float) $s;
+            } else {
+                $s = str_replace('.', '', $s);
+                $s = str_replace(',', '.', $s);
+                $float = (float) $s;
+            }
+        } elseif ($hasComma && !$hasDot) {
+            $parts = explode(',', $s);
+            if (count($parts) > 1 && strlen(end($parts)) === 2) {
+                $s = str_replace('.', '', $s);
+                $s = str_replace(',', '.', $s);
+                $float = (float) $s;
+            } else {
+                $s = str_replace(',', '', $s);
+                $float = (float) $s;
+            }
+        } elseif ($hasDot && !$hasComma) {
+            $parts = explode('.', $s);
+            if (count($parts) > 1 && strlen(end($parts)) === 2) {
+                $float = (float) $s;
+            } else {
+                $s = str_replace('.', '', $s);
+                $float = (float) $s;
+            }
+        } else {
+            $float = (float) $s;
+        }
+
+        return (int) round($float);
+    };
+
+    $totalGaji = $parseCurrencyToInt($form->input('total_gaji'));
+    $details   = request('pembagian', []);
+
+    $sumPembagian = 0;
+    foreach ($details as $row) {
+        if (!empty($row['id_tim']) && isset($row['jumlah'])) {
+            $sumPembagian += $parseCurrencyToInt($row['jumlah']);
+        }
     }
+
+    if ($sumPembagian < $totalGaji) {
+        return $form->response()->error(
+            'Masih ada sisa Rp ' . number_format($totalGaji - $sumPembagian,0,',','.') . ' yang belum dibagikan!'
+        );
+    }
+    if ($sumPembagian > $totalGaji) {
+        return $form->response()->error(
+            'Pembagian melebihi total gaji sebesar Rp ' . number_format($sumPembagian - $totalGaji,0,',','.') . '!'
+        );
+    }
+
+    $projectId   = $form->input('id_project');
+    $tanggalBaru = $form->input('tanggal');
+    $metode      = $form->input('metode_bayar');
+
+    // cek apakah edit
+    if ($form->model()->exists) {
+        $tanggalLama = $form->model()->tanggal;
+
+         \App\Models\Gaji::where('id_project', $projectId)
+            ->where('tanggal', $tanggalLama)
+            ->delete();
+
+    }
+
+    // insert ulang pembagian
+    foreach ($details as $row) {
+        if (!empty($row['id_tim']) && isset($row['jumlah'])) {
+            $amount = $parseCurrencyToInt($row['jumlah']);
+            \App\Models\Gaji::create([
+                'id_tim'       => $row['id_tim'],
+                'id_project'   => $projectId,
+                'jumlah'       => $amount,
+                'tanggal'      => $tanggalBaru,
+                'metode_bayar' => $metode,
+            ]);
+
+            // update total gaji karyawan
+            $tim = \App\Models\Tim::find($row['id_tim']);
+            if ($tim) {
+                $tim->gaji = \App\Models\Gaji::where('id_tim', $tim->id)->sum('jumlah');
+                $tim->save();
+            }
+        }
+    }
+
+    return $form->response()
+        ->success('Gaji berhasil disimpan!')
+        ->redirect('gaji');
+});
+
+
+            });
+        }
+
 }

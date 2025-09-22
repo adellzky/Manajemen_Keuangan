@@ -2,10 +2,9 @@
 
 namespace App\Admin\Controllers;
 
+
+use App\Models\Project;
 use App\Models\Kas;
-use App\Models\Pendapatan;
-use App\Models\Pengeluaran;
-use App\Models\Gaji;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -83,25 +82,34 @@ class KasController extends AdminController
 
             // --- kolom grid ---
             $grid->column('tanggal', 'Tanggal')->sortable();
+            $grid->column('keterangan', 'Keterangan');
 
-            $grid->column('modal', 'Modal (Kas Manual)')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->filter(function (Grid\Filter $filter) {
+                $filter->equal('id_project', 'Project')
+                    ->select(Project::pluck('nama_project', 'id')->toArray());
+                $filter->between('tanggal', 'Tanggal')->date();
+            });
 
-            $grid->column('total_pendapatan', 'Total Pendapatan')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->paginate(10);
+        });
+    }
 
-            $grid->column('total_pengeluaran', 'Total Pengeluaran')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-            $grid->column('total_gaji', 'Total Gaji')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-            // saldo akhir kumulatif yg kita masukkan sebelumnya
-            $grid->column('saldo_akhir', 'Saldo Akhir')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-            // jangan panggil $grid->paginate(...) karena kita sudah handle pagination sendiri
-            $grid->disableCreateButton(false); // tetep perbolehkan tombol +New jika mau
+    /**
+     * Detail view untuk Kas
+     */
+    protected function detail($id)
+    {
+        return Show::make($id, new Kas(), function (Show $show) {
+            $show->field('id', 'ID');
+            $show->field('project.nama_project', 'Project');
+            $show->field('jumlah', 'Jumlah')
+                ->as(fn($v) => $v !== null ? 'Rp ' . number_format((float) $v, 0, ',', '.') : '-');
+            $show->field('saldo_akhir', 'Saldo Akhir')
+                ->as(fn($v) => $v !== null ? 'Rp ' . number_format((float) $v, 0, ',', '.') : '-');
+            $show->field('tanggal', 'Tanggal');
+            $show->field('keterangan', 'Keterangan');
+            $show->field('created_at', 'Dibuat');
+            $show->field('updated_at', 'Diubah');
         });
     }
 
@@ -125,19 +133,32 @@ class KasController extends AdminController
 
             $form->textarea('keterangan', 'Keterangan');
 
-            $form->display('saldo_akhir', 'Saldo Akhir');
+            $form->display('saldo_akhir', 'Saldo Akhir (otomatis)');
 
-            // update saldo_akhir setelah save
-            $form->saved(function (Form $form, $result) {
-                $totalPendapatan  = Pendapatan::sum('jumlah');
-                $totalPengeluaran = Pengeluaran::sum('jumlah');
-                $totalGaji        = Gaji::sum('jumlah');
-                $totalKasManual   = Kas::sum('jumlah');
-
-                $saldo = ($totalPendapatan + $totalKasManual) - ($totalPengeluaran + $totalGaji);
-
-                $form->model()->update(['saldo_akhir' => $saldo]);
+            $form->saving(function (Form $form) {
+                if (!$form->saldo_akhir) {
+                    $form->input('saldo_akhir', 0);
+                }
             });
+
+            // Hitung ulang saldo setelah simpan
+            $form->saved(function (Form $form, $result) {
+                $projectId = $form->id_project;
+
+                // Ambil semua transaksi project ini urut dari paling awal
+                $kasList = Kas::where('id_project', $projectId)
+                            ->orderBy('tanggal')
+                            ->orderBy('id')
+                            ->get();
+
+                $saldo = 0;
+                foreach ($kasList as $kas) {
+                    $saldo += $kas->jumlah;   // tambahkan jumlah transaksi
+                    $kas->saldo_akhir = $saldo;
+                    $kas->save();
+                }
+            });
+
 
             $form->display('created_at', 'Dibuat');
             $form->display('updated_at', 'Diubah');

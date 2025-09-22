@@ -9,6 +9,8 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Response;
 
 class TimController extends AdminController
 {
@@ -30,7 +32,12 @@ class TimController extends AdminController
             });
             // $grid->column('created_at');
             // $grid->column('updated_at')->sortable();
-
+            $grid->actions(function (Grid\Displayers\Actions $actions) {
+                $id = $actions->getKey();
+                $actions->append("<a href='".url("admin/tim/$id/slip")."' target='_blank' class='btn btn-sm btn-primary'>
+                    <i class='feather icon-file-text'></i> Slip Gaji
+                </a>");
+             });
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
                 $filter->like('nama', 'Nama Karyawan');
@@ -69,8 +76,8 @@ class TimController extends AdminController
             ->where('id_tim', $model->id)
             ->with('project');
 
-            $grid->column('tanggal', 'Bulan')->display(function ($v) {
-                return $v ? \Carbon\Carbon::parse($v)->translatedFormat('F Y') : '-';
+            $grid->column('tanggal', 'Tanggal')->display(function ($v) {
+                return $v ? \Carbon\Carbon::parse($v)->translatedFormat('d F Y') : '-';
             });
             $grid->column('project.nama_project', 'Project');
             $grid->column('jumlah', 'Jumlah')->display(function ($val) {
@@ -100,12 +107,24 @@ class TimController extends AdminController
             $form->mobile('no_telp')->required();
             $form->text('atm')->required();
             $form->text('norek')->required();
-            $form->currency('gaji', 'Gaji')
-                ->symbol('Rp');
+            // $form->currency('gaji', 'Gaji')
+            //     ->symbol('Rp');
 
 
             $form->display('created_at');
             $form->display('updated_at');
         });
+    }
+        public function slip($id)
+    {
+        $tim = \App\Models\Tim::with(['gajis.project'])->findOrFail($id);
+
+        // data gaji per bulan
+        $gajis = $tim->gajis()->with('project')->get();
+
+        $pdf = Pdf::loadView('pdf.slip-gaji', compact('tim', 'gajis'))
+                ->setPaper('A4', 'portrait');
+
+        return $pdf->stream("slip-gaji-{$tim->nama}.pdf");
     }
 }
