@@ -5,53 +5,114 @@
     <title>Slip Gaji - {{ $tim->nama }}</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            font-size: 13px;
-            margin: 30px;
-            color: #333;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            margin: 20px;
         }
+
+        .kop-surat {
+            width: 100%;
+            text-align: center;
+            border-bottom: 3px solid #000;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .kop-surat table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .kop-surat td {
+            border: none;
+        }
+
+        .kop-surat img {
+            max-height: 70px;
+        }
+
+        .kop-surat h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .kop-surat p {
+            margin: 2px 0;
+            font-size: 11px;
+        }
+
         h2 {
             text-align: center;
-            margin-bottom: 10px;
+            margin: 15px 0;
         }
-        p {
-            margin: 2px 0;
-        }
-        h3 {
-            margin-top: 20px;
-            margin-bottom: 8px;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
             font-size: 12px;
         }
+
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: left;
         }
+
         th {
-            background-color: #3498db;
-            color: white;
+            background-color: #007BFF;
+            color: #fff;
             text-align: center;
         }
+
         tbody tr:nth-child(even) {
-            background-color: #f9f9f9; /* warna belang */
+            background-color: #f2f9ff;
         }
+
+        tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
         tfoot th {
-            background-color: #3498db;
-            color: white;
+            background-color: #007BFF;
+            color: #fff;
             text-align: right;
-            font-weight: bold;
         }
+
         tfoot td {
             font-weight: bold;
             text-align: right;
         }
+
+        .footer {
+            margin-top: 40px;
+            text-align: right;
+            font-size: 11px;
+        }
     </style>
 </head>
 <body>
+
+    {{-- HEADER / KOP SURAT --}}
+    <div class="kop-surat">
+        <table>
+            <tr>
+                <td style="width: 80px; text-align: left;">
+                    <img src="{{ public_path('logo.png') }}" alt="Logo">
+                </td>
+                <td style="text-align: center;">
+                    <h1>CV. ALZEN METRO DATA</h1>
+                    <p><em>Multimedia Broadcasting, Software Development, and IT Solution</em></p>
+                    <p><strong>Perum Pesat Gatra Village Blok O No. 1, Kel. Bakungan,</strong></p>
+                    <p><strong>Kec. Glagah, Kab. Banyuwangi - Jawa Timur</strong></p>
+                    <p>Telp: +62 81 559 555 555 | www.AlzenMetroData.com</p>
+                </td>
+                <td style="width: 80px;"></td>
+            </tr>
+        </table>
+    </div>
+
     <h2>Slip Gaji</h2>
     <p><b>Nama:</b> {{ $tim->nama }}</p>
     <p><b>No. Rekening:</b> {{ $tim->norek }} ({{ $tim->atm }})</p>
@@ -81,5 +142,10 @@
             </tr>
         </tfoot>
     </table>
+
+    <div class="footer">
+        Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i') }}
+    </div>
+
 </body>
 </html>
