@@ -26,9 +26,11 @@ class Gaji extends Model
         return $this->belongsTo(Tim::class, 'id_tim');
     }
 
+
     public function project()
     {
         return $this->belongsTo(Project::class, 'id_project');
     }
+
 }
 

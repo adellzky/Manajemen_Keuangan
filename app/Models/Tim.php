@@ -11,7 +11,7 @@ class Tim extends Model
 	use HasDateTimeFormatter;
 
     protected $table = 'tim';
-    protected $PrimaryKey = 'id';
+    protected $primaryKey = 'id';
     protected $fillable = [
         'nama',
         'no_telp',
@@ -19,5 +19,10 @@ class Tim extends Model
         'norek',
         'gaji',
     ];
+    
+    public function gajis()
+    {
+        return $this->hasMany(\App\Models\Gaji::class, 'id_tim');
+    }
 
 }

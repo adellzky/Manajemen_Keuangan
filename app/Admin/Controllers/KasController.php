@@ -2,32 +2,35 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\Kas;
+
 use App\Models\Project;
-use App\Models\Kas as KasModel;
+use App\Models\Kas;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 use Dcat\Admin\Http\Controllers\AdminController;
 
 class KasController extends AdminController
 {
     /**
-     * Grid untuk data Kas
+     * Grid untuk data Kas (rekap + manual kas)
      */
     protected function grid()
     {
-        return Grid::make(new Kas(), function (Grid $grid) {
+        return Grid::make(Kas::with(['project']), function (Grid $grid) {
             $grid->column('id', 'ID')->sortable();
             $grid->column('project.nama_project', 'Project');
-            $grid->column('jumlah', 'Jumlah')
-                ->display(fn($v) => $v !== null ? 'Rp ' . number_format((float) $v, 0, ',', '.') : '-');
-            $grid->column('saldo_akhir', 'Saldo Akhir')
-                ->display(fn($v) => $v !== null ? 'Rp ' . number_format((float) $v, 0, ',', '.') : '-');
+            $grid->column('jumlah')->display(function ($val) {
+                return 'Rp ' . number_format($val, 0, ',', '.');
+            });
+            $grid->column('saldo_akhir')->display(function ($val) {
+                return 'Rp ' . number_format($val, 0, ',', '.');
+            });
             $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('keterangan', 'Keterangan');
-            $grid->column('created_at', 'Dibuat');
-            $grid->column('updated_at', 'Diubah')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->equal('id_project', 'Project')
@@ -58,20 +61,17 @@ class KasController extends AdminController
         });
     }
 
+
+
     /**
-     * Form untuk tambah/edit Kas
+     * Form untuk tambah/edit Kas manual
      */
     protected function form()
     {
         return Form::make(new Kas(), function (Form $form) {
             $form->display('id', 'ID');
 
-            $form->select('id_project', 'Project')
-                ->options(Project::pluck('nama_project', 'id')->toArray())
-                ->required();
-
-            // Input jumlah dengan currency
-            $form->currency('jumlah', 'Jumlah')
+            $form->currency('jumlah', 'Kas Manual (Modal/Pinjaman)')
                 ->symbol('Rp')
                 ->required();
 
@@ -83,17 +83,30 @@ class KasController extends AdminController
 
             $form->display('saldo_akhir', 'Saldo Akhir (otomatis)');
 
-            // Hitung saldo_akhir kumulatif per project sebelum simpan
             $form->saving(function (Form $form) {
-                $projectId = $form->id_project;
-                $jumlah = (float) $form->jumlah;
-
-                // Total kas project sebelum record baru
-                $totalKasSebelumnya = (float) KasModel::where('id_project', $projectId)->sum('jumlah');
-
-                // Saldo akhir kumulatif = totalKasSebelumnya + jumlah baru
-                $form->saldo_akhir = $totalKasSebelumnya + $jumlah;
+                if (!$form->saldo_akhir) {
+                    $form->input('saldo_akhir', 0);
+                }
             });
+
+            // Hitung ulang saldo setelah simpan
+            $form->saved(function (Form $form, $result) {
+                $projectId = $form->id_project;
+
+                // Ambil semua transaksi project ini urut dari paling awal
+                $kasList = Kas::where('id_project', $projectId)
+                            ->orderBy('tanggal')
+                            ->orderBy('id')
+                            ->get();
+
+                $saldo = 0;
+                foreach ($kasList as $kas) {
+                    $saldo += $kas->jumlah;   // tambahkan jumlah transaksi
+                    $kas->saldo_akhir = $saldo;
+                    $kas->save();
+                }
+            });
+
 
             $form->display('created_at', 'Dibuat');
             $form->display('updated_at', 'Diubah');
