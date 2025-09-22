@@ -76,7 +76,7 @@
         /* Footer */
         .footer {
             margin-top: 40px;
-            text-align: right;
+            text-align: left;
             font-size: 11px;
         }
     </style>
