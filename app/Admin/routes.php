@@ -3,7 +3,7 @@
 use App\Admin\Controllers\GajiController;
 use App\Admin\Controllers\PendapatanController;
 use App\Admin\Controllers\ProjectController;
-use App\Admin\Controllers\KasController; // ✅ tambahin controller kas
+use App\Admin\Controllers\KasController;
 use App\Admin\Controllers\KeuanganController;
 use App\Admin\Controllers\MitraController;
 use App\Admin\Controllers\PengeluaranController;
@@ -29,5 +29,6 @@ Route::group([
     $router->resource('/tim', TimController::class);
     $router->resource('/gaji', GajiController::class);
     $router->resource('/keuangan', KeuanganController::class);
+    Route::get('tim/{id}/slip', [TimController::class, 'slip']);
 
 });
