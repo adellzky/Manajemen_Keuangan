@@ -27,6 +27,7 @@ Route::group([
     $router->resource('/project', ProjectController::class);
     $router->get('pendapatan/pdf/{id?}', [PendapatanController::class, 'exportPdf'])->name('pendapatan.pdf');
     $router->resource('/pendapatan', PendapatanController::class);
+    $router->get('kas/pdf', [KasController::class, 'exportPdf']);
     $router->resource('/kas', KasController::class);
     $router->get('pengeluaran/pdf', [PengeluaranController::class, 'exportPdf']);
     $router->resource('/pengeluaran', PengeluaranController::class);
