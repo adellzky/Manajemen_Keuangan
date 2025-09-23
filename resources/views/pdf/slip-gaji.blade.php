@@ -87,7 +87,7 @@
 
         .footer {
             margin-top: 40px;
-            text-align: right;
+            text-align: left;
             font-size: 11px;
         }
     </style>
@@ -143,7 +143,7 @@
         </tfoot>
     </table>
 
-    <div class="footer">
+    <div class="footer" style="text-align: left;">
         Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i') }}
     </div>
 
