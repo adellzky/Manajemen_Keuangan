@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Kas;
 use App\Models\Pengeluaran;
 use App\Models\Project;
 use Dcat\Admin\Form;
@@ -80,7 +81,7 @@ class PengeluaranController extends AdminController
                 $pengeluaran = $form->model();
                 $jumlah = $pengeluaran->jumlah;
 
-                $kas = \App\Models\Kas::latest('tanggal')->first();
+                $kas = Kas::latest('tanggal')->first();
                 if ($kas) {
                     if ($pengeluaran->sumber_dana === 'cash') {
                         $kas->cash = max(0, $kas->cash - $jumlah);
@@ -96,11 +97,22 @@ class PengeluaranController extends AdminController
 
     public function exportPdf()
     {
+        // ambil semua data dengan relasi project
         $data = Pengeluaran::with('project')->get();
 
-        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data'))
+        // kalau data hanya 1 (bukan collection), tetap dijadikan collection
+        $isSingle = false;
+        if ($data instanceof \Illuminate\Database\Eloquent\Collection) {
+            $total = $data->sum('jumlah');
+        } else {
+            $isSingle = true;
+            $total = $data->jumlah;
+        }
+
+        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data', 'total', 'isSingle'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('laporan-pengeluaran.pdf');
     }
+
 }

@@ -17,9 +17,9 @@ class ProjectController extends AdminController
             $grid->column('mitra.instansi', 'Mitra');
             $grid->column('kategori');
             $grid->column('nama_project');
-            $grid->column('deskripsi')->display(function ($val) {
-               return \Illuminate\Support\Str::limit($val, 20, '...');
-            });
+            // $grid->column('deskripsi')->display(function ($val) {
+            //    return \Illuminate\Support\Str::limit($val, 20, '...');
+            // });
             $grid->column('harga', 'Harga')->display(function ($val) {
                 return 'Rp ' . number_format($val, 0, ',', '.');
             });

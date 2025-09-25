@@ -20,136 +20,134 @@ class KasController extends AdminController
     /**
      * Grid untuk data Kas (rekap + manual kas)
      */
-    // --- ganti seluruh isi method grid() dengan ini ---
-protected function grid()
-{
-    return Grid::make(new Kas(), function (Grid $grid) {
-        $perPage = 10;
-        $page = (int) request()->get('page', 1);
+    protected function grid()
+    {
+        return Grid::make(new Kas(), function (Grid $grid) {
+            $perPage = 10;
+            $page = (int) request()->get('page', 1);
 
-        // filter tanggal dari request
-        $from = request()->get('from');
-        $to   = request()->get('to');
-
-        // ambil semua tanggal unik dari ke-4 tabel (format Y-m-d)
-        $tanggalList = collect()
-            ->merge(Pendapatan::pluck('tanggal')->toArray())
-            ->merge(Pengeluaran::pluck('tanggal')->toArray())
-            ->merge(Gaji::pluck('tanggal')->toArray())
-            ->merge(Kas::pluck('tanggal')->toArray())
-            ->filter()
-            ->map(fn($d) => date('Y-m-d', strtotime($d)))
-            ->unique()
-            ->sort() // penting: urut ASC supaya running balance benar
-            ->values();
-
-        if ($from) {
-            $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from);
-        }
-        if ($to) {
-            $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to);
-        }
-
-        $rows = [];
-        $bankRunning = 0; // saldo bank kumulatif
-        $cashRunning = 0; // cash kumulatif (total cash ditarik sampai hari tertentu)
-
-        foreach ($tanggalList as $tgl) {
-            $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
-            $cashTarik   = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
-            $pendapatan  = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
-
-            $pengeluaranBank = (float) Pengeluaran::whereDate('tanggal', $tgl)
-                ->where('sumber_dana', 'bank')
-                ->sum('jumlah');
-
-            $pengeluaranCash = (float) Pengeluaran::whereDate('tanggal', $tgl)
-                ->where('sumber_dana', 'cash')
-                ->sum('jumlah');
-
-            $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
-
-            // 🔹 Bank
-            $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
-
-            // 🔹 Cash realtime (bertambah dari tarik, berkurang dari pengeluaran cash)
-            $cashRunning += ($cashTarik - $pengeluaranCash);
-
-            // 🔹 Simpan row
-            $rows[] = [
-                'tanggal'           => $tgl,
-                'modal'             => $modal,
-                'cash_tarik'        => $cashTarik,     // cash ditarik hari itu
-                'cash'              => $cashRunning,   // saldo cash realtime
-                'total_pendapatan'  => $pendapatan,
-                'total_pengeluaran' => $pengeluaranBank + $pengeluaranCash,
-                'total_gaji'        => $gaji,
-                'saldo_akhir'       => $bankRunning,
-                'keseluruhan'       => $bankRunning + $cashRunning,
-            ];
-
-        }
-
-        // tampilkan terbaru dulu
-        $rows = array_reverse($rows);
-
-        // paginator manual tetap sama
-        $items = collect($rows);
-        $total = $items->count();
-        $slice = $items->slice(($page - 1) * $perPage, $perPage)->values()->all();
-
-        $paginator = new LengthAwarePaginator(
-            $slice,
-            $total,
-            $perPage,
-            $page,
-            [
-                'path' => Paginator::resolveCurrentPath(),
-                'query' => request()->query(),
-            ]
-        );
-
-        $grid->model()->setData($paginator);
-
-        // kolom tetap sama
-        $grid->column('tanggal', 'Tanggal')->sortable();
-        $grid->column('modal', 'Setor')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-        $grid->column('cash_tarik', 'Tarik Cash')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-        $grid->column('cash', 'Saldo Cash')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-        $grid->column('saldo_akhir', 'Saldo Bank')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-        $grid->column('total_pendapatan', 'Pendapatan')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-        $grid->column('total_pengeluaran', 'Pengeluaran')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-        $grid->column('total_gaji', 'Total Gaji')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-        $grid->column('keseluruhan', 'Keseluruhan')
-            ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-
-        $grid->disableCreateButton(false);
-
-        $grid->tools(function (Grid\Tools $tools) {
+            // filter tanggal dari request
             $from = request()->get('from');
             $to   = request()->get('to');
 
-            $tools->append('<a href="'.url('admin/kas/pdf').'?from='.$from.'&to='.$to.'" target="_blank" class="btn btn-primary">Print PDF</a>');
+            // ambil semua tanggal unik dari ke-4 tabel (format Y-m-d)
+            $tanggalList = collect()
+                ->merge(Pendapatan::pluck('tanggal')->toArray())
+                ->merge(Pengeluaran::pluck('tanggal')->toArray())
+                ->merge(Gaji::pluck('tanggal')->toArray())
+                ->merge(Kas::pluck('tanggal')->toArray())
+                ->filter()
+                ->map(fn($d) => date('Y-m-d', strtotime($d)))
+                ->unique()
+                ->sort() // penting: urut ASC supaya running balance benar
+                ->values();
 
-            $tools->append('
-                <form method="GET" style="margin-left:10px; display:inline-block;">
-                    Dari: <input type="date" name="from" value="'.$from.'">
-                    Sampai: <input type="date" name="to" value="'.$to.'">
-                    <button type="submit" class="btn btn-sm btn-success">Filter</button>
-                </form>
-            ');
+            if ($from) {
+                $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from);
+            }
+            if ($to) {
+                $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to);
+            }
+
+            $rows = [];
+            $bankRunning = 0; // saldo bank kumulatif
+            $cashRunning = 0; // cash kumulatif (total cash ditarik sampai hari tertentu)
+
+            foreach ($tanggalList as $tgl) {
+                $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
+                $cashTarik   = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
+                $pendapatan  = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
+
+                $pengeluaranBank = (float) Pengeluaran::whereDate('tanggal', $tgl)
+                    ->where('sumber_dana', 'bank')
+                    ->sum('jumlah');
+
+                $pengeluaranCash = (float) Pengeluaran::whereDate('tanggal', $tgl)
+                    ->where('sumber_dana', 'cash')
+                    ->sum('jumlah');
+
+                $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
+
+                // 🔹 Bank
+                $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
+
+                // 🔹 Cash realtime (bertambah dari tarik, berkurang dari pengeluaran cash)
+                $cashRunning += ($cashTarik - $pengeluaranCash);
+
+                // 🔹 Simpan row
+                $rows[] = [
+                    'tanggal'           => $tgl,
+                    'modal'             => $modal,
+                    'cash_tarik'        => $cashTarik,     // cash ditarik hari itu
+                    'cash'              => $cashRunning,   // saldo cash realtime
+                    'total_pendapatan'  => $pendapatan,
+                    'total_pengeluaran' => $pengeluaranBank + $pengeluaranCash,
+                    'total_gaji'        => $gaji,
+                    'saldo_akhir'       => $bankRunning,
+                    'keseluruhan'       => $bankRunning + $cashRunning,
+                ];
+            }
+
+            // tampilkan terbaru dulu
+            $rows = array_reverse($rows);
+
+            // paginator manual tetap sama
+            $items = collect($rows);
+            $total = $items->count();
+            $slice = $items->slice(($page - 1) * $perPage, $perPage)->values()->all();
+
+            $paginator = new LengthAwarePaginator(
+                $slice,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => Paginator::resolveCurrentPath(),
+                    'query' => request()->query(),
+                ]
+            );
+
+            $grid->model()->setData($paginator);
+
+            // kolom tetap sama
+            $grid->column('tanggal', 'Tanggal')->sortable();
+            $grid->column('modal', 'Setor')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('cash_tarik', 'Tarik Cash')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+
+            $grid->column('cash', 'Saldo Cash')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+
+            $grid->column('saldo_akhir', 'Saldo Bank')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('total_pendapatan', 'Pendapatan')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('total_pengeluaran', 'Pengeluaran')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('total_gaji', 'Total Gaji')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('keseluruhan', 'Keseluruhan')
+                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+
+            $grid->disableCreateButton(false);
+
+            $grid->tools(function (Grid\Tools $tools) {
+                $from = request()->get('from');
+                $to   = request()->get('to');
+
+                $tools->append('<a href="'.url('admin/keuangan/pdf').'?from='.$from.'&to='.$to.'" target="_blank" class="btn btn-primary">Print PDF</a>');
+
+                $tools->append('
+                    <form method="GET" style="margin-left:10px; display:inline-block;">
+                        Dari: <input type="date" name="from" value="'.$from.'">
+                        Sampai: <input type="date" name="to" value="'.$to.'">
+                        <button type="submit" class="btn btn-sm btn-success">Filter</button>
+                    </form>
+                ');
+            });
         });
-    });
-}
+    }
 
 
 
@@ -169,8 +167,12 @@ protected function grid()
         ->sort()
         ->values();
 
-    if ($from) { $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from); }
-    if ($to) { $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to); }
+    if ($from) {
+        $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from);
+    }
+    if ($to) {
+        $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to);
+    }
 
     $rows = [];
     $bankRunning = 0;
@@ -178,23 +180,33 @@ protected function grid()
 
     foreach ($tanggalList as $tgl) {
         $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
-        $cash        = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
+        $cashTarik   = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
         $pendapatan  = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
-        $pengeluaran = (float) Pengeluaran::whereDate('tanggal', $tgl)->sum('jumlah');
-        $gaji        = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
 
-        $bankRunning += ($modal + $pendapatan) - ($pengeluaran + $gaji) - $cash;
-        $cashRunning += $cash;
+        $pengeluaranBank = (float) Pengeluaran::whereDate('tanggal', $tgl)
+            ->where('sumber_dana', 'bank')
+            ->sum('jumlah');
+
+        $pengeluaranCash = (float) Pengeluaran::whereDate('tanggal', $tgl)
+            ->where('sumber_dana', 'cash')
+            ->sum('jumlah');
+
+        $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
+
+        // 🔹 Sama seperti grid
+        $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
+        $cashRunning += ($cashTarik - $pengeluaranCash);
 
         $rows[] = [
-            'tanggal' => $tgl,
-            'modal' => $modal,
-            'cash' => $cash,
-            'total_pendapatan' => $pendapatan,
-            'total_pengeluaran' => $pengeluaran,
-            'total_gaji' => $gaji,
-            'saldo_akhir' => $bankRunning,
-            'keseluruhan' => $bankRunning + $cashRunning,
+            'tanggal'           => $tgl,
+            'modal'             => $modal,
+            'cash_tarik'        => $cashTarik,
+            'cash'              => $cashRunning,
+            'total_pendapatan'  => $pendapatan,
+            'total_pengeluaran' => $pengeluaranBank + $pengeluaranCash,
+            'total_gaji'        => $gaji,
+            'saldo_akhir'       => $bankRunning,
+            'keseluruhan'       => $bankRunning + $cashRunning,
         ];
     }
 
@@ -209,6 +221,7 @@ protected function grid()
 
     return $pdf->stream('kas-report.pdf');
 }
+
 
 
 

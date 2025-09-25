@@ -13,7 +13,7 @@
            .kop-surat {
             width: 100%;
             text-align: center;
-            border-bottom: 3px solid #000; 
+            border-bottom: 3px solid #000;
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
@@ -106,39 +106,51 @@
     <table>
         <thead>
             <tr>
+                <th>Tanggal</th>
                 <th>Nama Project</th>
                 <th>Nama Pengeluaran Lain</th>
                 <th>Jumlah</th>
-                <th>Tanggal</th>
+                <th>Sumber Dana</th>
                 <th>Keterangan</th>
             </tr>
         </thead>
         <tbody>
-            @if(isset($data->id)) 
+            @if(isset($data->id))
                 <tr>
+                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
                     <td>{{ $data->project->nama_project ?? '-' }}</td>
                     <td>{{ $data->nama_project_manual ?? '-' }}</td>
                     <td>Rp {{ number_format($data->jumlah, 0, ',', '.') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
+                    <td>{{ $item->sumber_dana ?? '-' }}</td>
                     <td>{{ $data->keterangan }}</td>
                 </tr>
             @else
                 @foreach($data as $item)
                     <tr>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ $item->project->nama_project ?? '-' }}</td>
                         <td>{{ $item->nama_project_manual ?? '-' }}</td>
                         <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
+                        <td>{{ $item->sumber_dana ?? '-' }}</td>
                         <td>{{ $item->keterangan }}</td>
                     </tr>
                 @endforeach
             @endif
         </tbody>
+        <tfoot>
+            <tr style="background-color:#fbff00; font-weight:bold;">
+                <td colspan="3" style="text-align:left">Total Pengeluaran:</td>
+                <td colspan="3">Rp {{ number_format($total, 0, ',', '.') }}</td>
+            </tr>
+        </tfoot>
+
+
     </table>
 
     <div class="footer">
         Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i') }}
     </div>
+
 
 </body>
 </html>
