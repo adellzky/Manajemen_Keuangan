@@ -1,5 +1,6 @@
 <?php
 
+use App\Admin\Controllers\CashController;
 use App\Admin\Controllers\GajiController;
 use App\Admin\Controllers\PendapatanController;
 use App\Admin\Controllers\ProjectController;
@@ -27,15 +28,14 @@ Route::group([
     $router->resource('/project', ProjectController::class);
     $router->get('pendapatan/pdf/{id?}', [PendapatanController::class, 'exportPdf'])->name('pendapatan.pdf');
     $router->resource('/pendapatan', PendapatanController::class);
-    $router->get('kas/pdf', [KasController::class, 'exportPdf']);
-    $router->resource('/kas', KasController::class);
+    $router->get('keuangan/pdf', [KasController::class, 'exportPdf']);
+    $router->resource('/keuangan', KasController::class);
     $router->get('pengeluaran/pdf', [PengeluaranController::class, 'exportPdf']);
     $router->resource('/pengeluaran', PengeluaranController::class);
     $router->resource('/tim', TimController::class);
     $router->resource('/gaji', GajiController::class);
-    $router->resource('/keuangan', KeuanganController::class);
+    $router->resource('/keuangan-project', KeuanganController::class);
     $router->get('tim/{id}/slip', [TimController::class, 'slip']);
-
 
 });
 

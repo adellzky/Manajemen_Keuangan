@@ -40,7 +40,6 @@ class ProjectController extends AdminController
                 $filter->equal('id_mitra', 'Mitra')
                     ->select(Mitra::pluck('instansi', 'id'));
                 $filter->like('nama_project', 'Nama Project');
-                $filter->like('nama_klien', 'Nama Klien');
                 $filter->between('tanggal_selesai', 'Tanggal Selesai')->date();
             });
         });

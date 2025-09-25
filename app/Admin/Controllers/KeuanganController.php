@@ -42,7 +42,7 @@ class KeuanganController extends AdminController
 
 
             // Sisa = (Pendapatan + Kas) - (Pengeluaran + Gaji)
-            $grid->column('sisa', 'Sisa')->display(function () {
+            $grid->column('sisa', 'Saldo')->display(function () {
                 $pendapatan  = (float) ($this->pendapatan_sum_jumlah  ?? 0);
                 $pengeluaran = (float) ($this->pengeluaran_sum_jumlah ?? 0);
                 $gaji        = (float) ($this->gaji_sum_jumlah        ?? 0);

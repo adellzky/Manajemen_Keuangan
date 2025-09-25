@@ -24,10 +24,9 @@ class PengeluaranController extends AdminController
             });
 
             $grid->column('jumlah', 'Jumlah')->display(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
+            $grid->column('sumber_dana', 'Sumber Dana');
             $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('keterangan', 'Keterangan');
-            $grid->column('created_at', 'Dibuat');
-            $grid->column('updated_at', 'Diperbarui')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
@@ -68,9 +67,30 @@ class PengeluaranController extends AdminController
             $form->text('nama_project_manual', 'Nama Pengeluaran Lain')->help('Isi field ini jika tidak ada project yang dipilih.');
             $form->currency('jumlah', 'Jumlah')->symbol('Rp')->required();
             $form->date('tanggal', 'Tanggal')->default(now())->required();
+            $form->radio('sumber_dana', 'Sumber Dana')
+                ->options(['cash' => 'Cash', 'bank' => 'Bank'])
+                ->default('bank')
+                ->required();
+
             $form->textarea('keterangan', 'Keterangan');
             $form->display('created_at', 'Dibuat');
             $form->display('updated_at', 'Diperbarui');
+
+            $form->saved(function (Form $form) {
+                $pengeluaran = $form->model();
+                $jumlah = $pengeluaran->jumlah;
+
+                $kas = \App\Models\Kas::latest('tanggal')->first();
+                if ($kas) {
+                    if ($pengeluaran->sumber_dana === 'cash') {
+                        $kas->cash = max(0, $kas->cash - $jumlah);
+                    } elseif ($pengeluaran->sumber_dana === 'bank') {
+                        $kas->saldo_bank = max(0, $kas->saldo_bank - $jumlah);
+                    }
+                    $kas->save();
+                }
+            });
+
         });
     }
 

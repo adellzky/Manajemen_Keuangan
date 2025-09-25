@@ -14,14 +14,14 @@ return new class extends Migration
             $table->bigInteger('jumlah');
             $table->date('tanggal')->nullable();
             $table->string('nama_project_manual', 225)->nullable();
-
+            $table->enum('sumber_dana', ['cash', 'bank'])->default('bank');
             $table->string('keterangan', 225)->nullable();
             $table->timestamps();
 
             $table->foreign('id_project')
                 ->references('id')
                 ->on('projects')
-                ->onDelete('set null'); 
+                ->onDelete('set null');
         });
     }
 

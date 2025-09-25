@@ -32,4 +32,9 @@ class Kas extends Model
         return $this->hasMany(Gaji::class, 'id_project', 'id');
     }
 
+    // public function cash()
+    // {
+    //     return $this->hasMany(Cash::class, 'id_kas');
+    // }
+
 }

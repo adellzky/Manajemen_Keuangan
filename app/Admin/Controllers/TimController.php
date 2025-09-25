@@ -2,9 +2,9 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\Tim;
 use App\Models\Gaji;
 use App\Models\Project;
+use App\Models\Tim;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -40,7 +40,8 @@ class TimController extends AdminController
              });
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
-                $filter->like('nama', 'Nama Karyawan');
+                $filter->equal('id', 'Nama Karyawan')
+                    ->select(Tim::pluck('nama', 'id'));
                 $filter->between('gaji', 'Range Gaji');
 
             });
