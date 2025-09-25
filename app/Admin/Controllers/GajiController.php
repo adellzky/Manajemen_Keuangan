@@ -20,7 +20,7 @@ class GajiController extends AdminController
     protected function grid()
     {
         return Grid::make(new Gaji(), function (Grid $grid) {
-            // $grid->column('id')->sortable();
+            $grid->model()->whereNotNull('id_project');
             $grid->column('id_tim', 'Karyawan')
                 ->display(function ($id) {
                     return Tim::find($id)?->nama ?? '-';
@@ -34,8 +34,6 @@ class GajiController extends AdminController
             });
             $grid->column('tanggal')->sortable();
             $grid->column('metode_bayar');
-            // $grid->column('created_at');
-            // $grid->column('updated_at')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);

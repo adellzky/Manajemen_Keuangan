@@ -35,6 +35,11 @@ Route::group([
     $router->resource('/gaji', GajiController::class);
     $router->resource('/keuangan', KeuanganController::class);
     $router->get('tim/{id}/slip', [TimController::class, 'slip']);
+    $router->get('tim/{id}/ambil-gaji', [TimController::class, 'ambilGaji']); // ini untuk tampilkan form
+    $router->post('tim/{id}/ambil-gaji', [TimController::class, 'storeAmbilGaji'])->name('tim.store-ambil-gaji'); // ini untuk proses simpan
+
+
+
 
 
 });

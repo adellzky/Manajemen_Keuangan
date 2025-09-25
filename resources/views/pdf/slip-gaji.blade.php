@@ -117,31 +117,63 @@
     <p><b>Nama:</b> {{ $tim->nama }}</p>
     <p><b>No. Rekening:</b> {{ $tim->norek }} ({{ $tim->atm }})</p>
 
-    <h3>Rincian</h3>
-    <table>
-        <thead>
+    <h3>Rincian Gaji Per Project</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Bulan</th>
+            <th>Project</th>
+            <th>Jumlah</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach($gajis->whereNotNull('id_project') as $gaji)
             <tr>
-                <th>Bulan</th>
-                <th>Project</th>
-                <th>Jumlah</th>
+                <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
+                <td>{{ $gaji->project->nama_project ?? '-' }}</td>
+                <td style="text-align:right">Rp {{ number_format($gaji->jumlah,0,',','.') }}</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach($gajis as $gaji)
-                <tr>
-                    <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
-                    <td>{{ $gaji->project->nama_project ?? '-' }}</td>
-                    <td style="text-align:right">Rp {{ number_format($gaji->jumlah,0,',','.') }}</td>
-                </tr>
-            @endforeach
-        </tbody>
-        <tfoot>
+        @endforeach
+    </tbody>
+</table>
+
+<h3>Rincian Gaji</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Tanggal</th>
+            <th>Project / Keterangan</th>
+            <th>Nominal</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{-- Gaji per project --}}
+        @foreach($gajis->whereNotNull('id_project') as $gaji)
             <tr>
-                <th colspan="2">Total Gaji:</th>
-                <th style="text-align:right">Rp {{ number_format($tim->gaji,0,',','.') }}</th>
+                <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
+                <td>{{ $gaji->project->nama_project ?? '-' }} <span style="color: green;">(Gaji Project)</span></td>
+                <td style="text-align:right">Rp {{ number_format($gaji->jumlah,0,',','.') }}</td>
             </tr>
-        </tfoot>
-    </table>
+        @endforeach
+
+        {{-- Ambil gaji tanpa project --}}
+        @foreach($gajis->whereNull('id_project') as $gaji)
+            <tr>
+                <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
+                <td><span style="color: rgb(255, 0, 0);">Pengambilan Gaji</span></td>
+                <td style="text-align:right">Rp {{ number_format($gaji->jumlah,0,',','.') }}</td>
+            </tr>
+        @endforeach
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="2">Total Gaji Tersisa</th>
+            <th style="text-align:right">Rp {{ number_format($tim->gaji,0,',','.') }}</th>
+        </tr>
+    </tfoot>
+</table>
+
+
 
     <div class="footer" style="text-align: left;">
         Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i') }}
