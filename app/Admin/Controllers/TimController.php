@@ -11,6 +11,7 @@ use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Response;
+use Dcat\Admin\Layout\Content;
 
 class TimController extends AdminController
 {
@@ -22,7 +23,6 @@ class TimController extends AdminController
     protected function grid()
     {
         return Grid::make(new Tim(), function (Grid $grid) {
-            // $grid->column('id')->sortable();
             $grid->column('nama');
             $grid->column('no_telp');
             $grid->column('atm');
@@ -30,14 +30,21 @@ class TimController extends AdminController
              $grid->column('gaji', 'Gaji')->display(function ($val) {
                 return 'Rp ' . number_format($val, 0, ',', '.');
             });
-            // $grid->column('created_at');
-            // $grid->column('updated_at')->sortable();
+
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $id = $actions->getKey();
+
+                // tombol slip
                 $actions->append("<a href='".url("admin/tim/$id/slip")."' target='_blank' class='btn btn-sm btn-primary'>
                     <i class='feather icon-file-text'></i> Slip Gaji
                 </a>");
-             });
+
+               $actions->append("<a href='".url("admin/tim/$id/ambil-gaji")."' class='btn btn-sm btn-warning'>
+                    <i class='feather icon-credit-card'></i> Ambil Gaji
+                </a>");
+
+            });
+
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
                 $filter->equal('id', 'Nama Karyawan')
@@ -56,44 +63,69 @@ class TimController extends AdminController
      * @return Show
      */
     protected function detail($id)
-    {
-        return Show::make($id, new Tim(), function (Show $show) {
-            // $show->field('id');
-            $show->field('nama');
-            $show->field('no_telp');
-            $show->field('atm');
-            $show->field('norek');
-            $show->field('gaji')->as(function ($val) {
-                return 'Rp ' . number_format($val, 0, ',', '.');
-            });
-            $show->field('created_at');
-            $show->field('updated_at');
-
-            // Tambahkan rincian gaji per bulan
-        $show->relation('gajis', 'Rincian Gaji Per Bulan', function ($model) {
-            $grid = new \Dcat\Admin\Grid(new \App\Models\Gaji());
+{
+    return Show::make($id, new Tim(), function (Show $show) {
+        $show->field('nama');
+        $show->field('no_telp');
+        $show->field('atm');
+        $show->field('norek');
+        $show->field('gaji')->as(function ($val) {
+            return 'Rp ' . number_format($val, 0, ',', '.');
+        });
+        $show->field('created_at');
+        $show->field('updated_at');
+        // ✅ Rincian Gaji Per Project
+        $show->field('rincian_gaji', '📌 Rincian Gaji Per Project')->unescape()->as(function ($val) use ($show) {
+            $grid = new Grid(new Gaji());
 
             $grid->model()
-            ->where('id_tim', $model->id)
-            ->with('project');
+                ->where('id_tim', $show->getKey())
+                ->whereNotNull('id_project')
+                ->with('project');
 
-            $grid->column('tanggal', 'Tanggal')->display(function ($v) {
-                return $v ? \Carbon\Carbon::parse($v)->translatedFormat('d F Y') : '-';
-            });
+            $grid->column('tanggal', 'Tanggal')->display(fn($v) =>
+                $v ? \Carbon\Carbon::parse($v)->translatedFormat('d F Y') : '-'
+            );
             $grid->column('project.nama_project', 'Project');
-            $grid->column('jumlah', 'Jumlah')->display(function ($val) {
-                return 'Rp ' . number_format($val, 0, ',', '.');
-            });
+            $grid->column('jumlah', 'Jumlah')->display(fn($val) =>
+                'Rp ' . number_format($val, 0, ',', '.')
+            );
 
             $grid->disableCreateButton();
             $grid->disableRowSelector();
             $grid->disableActions();
             $grid->disablePagination();
 
-            return $grid;
+            return $grid->render();
         });
+
+        // ✅ Riwayat Ambil Gaji
+        $show->field('riwayat_gaji', '📌 Riwayat Ambil Gaji')->unescape()->as(function ($val) use ($show) {
+            $grid = new Grid(new Gaji());
+
+            $grid->model()
+                ->where('id_tim', $show->getKey())
+                ->whereNull('id_project');
+
+            $grid->column('tanggal', 'Tanggal')->display(fn($v) =>
+                $v ? \Carbon\Carbon::parse($v)->translatedFormat('d F Y') : '-'
+            );
+            $grid->column('metode_bayar', 'Metode');
+            $grid->column('jumlah', 'Nominal Ambil')->display(fn($val) =>
+                'Rp ' . number_format($val, 0, ',', '.')
+            );
+
+            $grid->disableCreateButton();
+            $grid->disableRowSelector();
+            $grid->disableActions();
+            $grid->disablePagination();
+
+            return $grid->render();
         });
-    }
+
+    });
+}
+
 
     /**
      * Make a form builder.
@@ -127,5 +159,57 @@ class TimController extends AdminController
                 ->setPaper('A4', 'portrait');
 
         return $pdf->stream("slip-gaji-{$tim->nama}.pdf");
+    }
+
+    public function ambilGaji($id)
+{
+    $tim = \App\Models\Tim::findOrFail($id);
+
+    return Form::make(new \App\Models\Gaji(), function (Form $form) use ($tim) {
+        $form->hidden('id_tim')->value($tim->id);
+        $form->display('nama_karyawan', 'Nama Karyawan')->default($tim->nama);
+
+        $form->currency('jumlah', 'Nominal Ambil')
+            ->symbol('Rp')
+            ->rules("max:{$tim->gaji}")
+            ->required();
+
+        $form->date('tanggal')->default(now());
+        $form->select('metode_bayar')->options([
+            'Cash' => 'Cash',
+            'Transfer' => 'Transfer',
+        ])->default('Cash');
+
+        $form->hidden('id_project')->value(null);
+    })->action(url("admin/tim/{$tim->id}/ambil-gaji"));
+
+}
+
+public function storeAmbilGaji($id)
+{
+    $tim = \App\Models\Tim::findOrFail($id);
+
+    $data = request()->all();
+
+    if ($data['jumlah'] > $tim->gaji) {
+        return back()->withError("Nominal melebihi total gaji!");
+    }
+
+    // Simpan data gaji
+    $gaji = new \App\Models\Gaji();
+    $gaji->id_tim = $tim->id;
+    $gaji->jumlah = $data['jumlah'];
+    $gaji->tanggal = $data['tanggal'];
+    $gaji->metode_bayar = $data['metode_bayar'];
+    $gaji->id_project = null;
+    $gaji->save();
+
+    // Update sisa gaji di tim
+    $tim->gaji -= $data['jumlah'];
+    $tim->save();
+
+    return $this->response()
+        ->success("Pengambilan gaji berhasil, sisa gaji Rp " . number_format($tim->gaji, 0, ',', '.'))
+        ->redirect('admin/tim');
     }
 }
