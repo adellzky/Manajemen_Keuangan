@@ -191,9 +191,10 @@ class TimController extends AdminController
 
         $data = request()->all();
 
-        if ($data['jumlah'] > $tim->gaji) {
-            return back()->withError("Nominal melebihi total gaji!");
-        }
+       if ($data['jumlah'] > $tim->gaji) {
+        admin_error('Gagal', 'Nominal gaji melebihi total gaji yang tersedia, gaji tidak bisa diambil.');
+        return back();
+    }
 
         // Simpan data gaji
         $gaji = new \App\Models\Gaji();
