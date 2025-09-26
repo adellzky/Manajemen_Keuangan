@@ -13,7 +13,7 @@
             .kop-surat {
             width: 100%;
             text-align: center;
-            border-bottom: 3px solid #000; 
+            border-bottom: 3px solid #000;
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
@@ -24,7 +24,7 @@
         }
 
         .kop-surat td {
-            border: none; 
+            border: none;
         }
 
         .kop-surat img {
@@ -115,7 +115,7 @@
             </tr>
         </thead>
         <tbody>
-            @if(isset($data->id_pendapatan)) 
+            @if(isset($data->id_pendapatan))
                 <tr>
                     <td>{{ $data->project->nama_project ?? '-' }}</td>
                     <td>{{ $data->mitra->instansi ?? '-' }}</td>
