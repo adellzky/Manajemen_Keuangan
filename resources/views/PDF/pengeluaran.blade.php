@@ -10,10 +10,10 @@
             margin: 20px;
         }
 
-           .kop-surat {
+        .kop-surat {
             width: 100%;
             text-align: center;
-            border-bottom: 3px solid #000; 
+            border-bottom: 3px solid #000;
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
@@ -47,7 +47,7 @@
             margin: 15px 0;
         }
 
-         table {
+        table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
@@ -71,6 +71,11 @@
 
         tbody tr:nth-child(odd) {
             background-color: #ffffff;
+        }
+
+        tfoot td {
+            font-weight: bold;
+            background-color: #ffff99; 
         }
 
         .footer {
@@ -106,34 +111,50 @@
     <table>
         <thead>
             <tr>
+                <th>Tanggal</th>
                 <th>Nama Project</th>
                 <th>Nama Pengeluaran Lain</th>
+                <th>Sumber Dana</th>
                 <th>Jumlah</th>
-                <th>Tanggal</th>
                 <th>Keterangan</th>
             </tr>
         </thead>
         <tbody>
-            @if(isset($data->id)) 
+            @if(isset($data->id))
                 <tr>
+                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
                     <td>{{ $data->project->nama_project ?? '-' }}</td>
                     <td>{{ $data->nama_project_manual ?? '-' }}</td>
+                    <td>{{ $data->sumber_dana ?? '-' }}</td>
                     <td>Rp {{ number_format($data->jumlah, 0, ',', '.') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
                     <td>{{ $data->keterangan }}</td>
                 </tr>
             @else
                 @foreach($data as $item)
                     <tr>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ $item->project->nama_project ?? '-' }}</td>
                         <td>{{ $item->nama_project_manual ?? '-' }}</td>
+                        <td>{{ $item->sumber_dana ?? '-' }}</td>
                         <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ $item->keterangan }}</td>
                     </tr>
                 @endforeach
             @endif
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" style="text-align:center;">TOTAL</td>
+                <td colspan="2">
+                    Rp {{ number_format(
+                        isset($data->id_pendapatan) ? $data->jumlah : collect($data)->sum('jumlah'),
+                        0, ',', '.'
+                    ) }}
+                </td>
+            </tr>
+        </tfoot>
+
+
     </table>
 
     <div class="footer">
@@ -142,4 +163,3 @@
 
 </body>
 </html>
-

@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Kas;
 use App\Models\Pengeluaran;
 use App\Models\Project;
 use Dcat\Admin\Form;
@@ -9,6 +10,7 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class PengeluaranController extends AdminController
 {
@@ -24,10 +26,9 @@ class PengeluaranController extends AdminController
             });
 
             $grid->column('jumlah', 'Jumlah')->display(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
+            $grid->column('sumber_dana', 'Sumber Dana');
             $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('keterangan', 'Keterangan');
-            $grid->column('created_at', 'Dibuat');
-            $grid->column('updated_at', 'Diperbarui')->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
@@ -36,7 +37,7 @@ class PengeluaranController extends AdminController
             });
 
             $grid->tools(function (Grid\Tools $tools) {
-                $tools->append('<a href="'.url('admin/pengeluaran/pdf').'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
+                $tools->append('<a href="' . url('admin/pengeluaran/pdf?' . request()->getQueryString()) . '" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
             });
         });
     }
@@ -68,17 +69,48 @@ class PengeluaranController extends AdminController
             $form->text('nama_project_manual', 'Nama Pengeluaran Lain')->help('Isi field ini jika tidak ada project yang dipilih.');
             $form->currency('jumlah', 'Jumlah')->symbol('Rp')->required();
             $form->date('tanggal', 'Tanggal')->default(now())->required();
+            $form->radio('sumber_dana', 'Sumber Dana')
+                ->options(['cash' => 'Cash', 'bank' => 'Bank'])
+                ->default('bank')
+                ->required();
+
             $form->textarea('keterangan', 'Keterangan');
             $form->display('created_at', 'Dibuat');
             $form->display('updated_at', 'Diperbarui');
+
+            $form->saved(function (Form $form) {
+                $pengeluaran = $form->model();
+                $jumlah = $pengeluaran->jumlah;
+
+                $kas = Kas::latest('tanggal')->first();
+                if ($kas) {
+                    if ($pengeluaran->sumber_dana === 'cash') {
+                        $kas->cash = max(0, $kas->cash - $jumlah);
+                    } elseif ($pengeluaran->sumber_dana === 'bank') {
+                        $kas->saldo_bank = max(0, $kas->saldo_bank - $jumlah);
+                    }
+                    $kas->save();
+                }
+            });
         });
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $data = Pengeluaran::with('project')->get();
+        $query = Pengeluaran::with('project');
 
-        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data'))
+        if ($request->filled('id_project')) {
+            $query->where('id_project', $request->id_project);
+        }
+
+        if ($request->filled('tanggal.0') && $request->filled('tanggal.1')) {
+            $query->whereBetween('tanggal', [$request->input('tanggal.0'), $request->input('tanggal.1')]);
+        }
+
+        $data = $query->get();
+        $total = $data->sum('jumlah');
+
+        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data', 'total'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('laporan-pengeluaran.pdf');

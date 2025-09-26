@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Keuangan Kantor</title>
+    <title>Laporan Keuangan Ironative</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -18,18 +18,9 @@
             margin-bottom: 20px;
         }
 
-        .kop-surat table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .kop-surat td {
-            border: none;
-        }
-
-        .kop-surat img {
-            max-height: 70px;
-        }
+        .kop-surat table { width: 100%; border-collapse: collapse; }
+        .kop-surat td { border: none; }
+        .kop-surat img { max-height: 70px; }
 
         .kop-surat h1 {
             margin: 0;
@@ -37,43 +28,25 @@
             font-weight: bold;
         }
 
-        .kop-surat p {
-            margin: 2px 0;
-            font-size: 11px;
-        }
+        .kop-surat p { margin: 2px 0; font-size: 11px; }
 
-        h2 {
-            text-align: center;
-            margin: 15px 0;
-        }
+        h2 { text-align: center; margin: 15px 0; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td {
             border: 1px solid #000;
             padding: 6px;
-            text-align: left;
+            text-align: center;
         }
 
         th {
             background-color: #007BFF;
             color: #fff;
-            text-align: center;
         }
 
-        tbody tr:nth-child(even) {
-            background-color: #f2f9ff;
-        }
+        tbody tr:nth-child(even) { background-color: #f2f9ff; }
+        tbody tr:nth-child(odd) { background-color: #ffffff; }
 
-        tbody tr:nth-child(odd) {
-            background-color: #ffffff;
-        }
-
-        /* Footer */
         .footer {
             margin-top: 40px;
             text-align: left;
@@ -102,17 +75,20 @@
         </table>
     </div>
 
-    <h2>Laporan Kas</h2>
+    <h2>Laporan Keuangan Ironative</h2>
 
     <table>
         <thead>
             <tr>
                 <th>Tanggal</th>
-                <th>Modal (Kas Manual)</th>
-                <th>Total Pendapatan</th>
-                <th>Total Pengeluaran</th>
+                <th>Setor</th>
+                <th>Tarik Cash</th>
+                <th>Saldo Cash</th>
+                <th>Saldo Bank</th>
+                <th>Pendapatan</th>
+                <th>Pengeluaran</th>
                 <th>Total Gaji</th>
-                <th>Saldo Akhir</th>
+                <th>Keseluruhan</th>
             </tr>
         </thead>
         <tbody>
@@ -120,10 +96,13 @@
                 <tr>
                     <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                     <td>Rp {{ number_format($item->modal, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->cash_tarik, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->cash, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->saldo_akhir, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->total_pendapatan, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->total_pengeluaran, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->total_gaji, 0, ',', '.') }}</td>
-                    <td>Rp {{ number_format($item->saldo_akhir, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->keseluruhan, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>

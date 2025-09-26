@@ -75,7 +75,7 @@
 
         tfoot td {
             font-weight: bold;
-            background-color: #e6f0ff;
+            background-color: #ffff99; 
         }
 
         .footer {
@@ -111,29 +111,29 @@
     <table>
         <thead>
             <tr>
+                <th>Tanggal</th>
                 <th>Nama Project</th>
                 <th>Mitra</th>
                 <th>Jumlah</th>
-                <th>Tanggal</th>
                 <th>Keterangan</th>
             </tr>
         </thead>
         <tbody>
             @if(isset($data->id_pendapatan)) 
                 <tr>
+                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
                     <td>{{ $data->project->nama_project ?? '-' }}</td>
                     <td>{{ $data->mitra->instansi ?? '-' }}</td>
                     <td>Rp {{ number_format($data->jumlah, 0, ',', '.') }}</td>
-                    <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d-m-Y') }}</td>
                     <td>{{ $data->keterangan }}</td>
                 </tr>
             @else
                 @foreach($data as $item)
                     <tr>
+                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ $item->project->nama_project ?? '-' }}</td>
                         <td>{{ $item->mitra->instansi ?? '-' }}</td>
                         <td>Rp {{ number_format($item->jumlah, 0, ',', '.') }}</td>
-                        <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d-m-Y') }}</td>
                         <td>{{ $item->keterangan }}</td>
                     </tr>
                 @endforeach
@@ -141,8 +141,8 @@
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="2" style="text-align:center;">TOTAL</td>
-                <td colspan="3">
+                <td colspan="3" style="text-align:center;">TOTAL</td>
+                <td colspan="2">
                     Rp {{ number_format(
                         isset($data->id_pendapatan) ? $data->jumlah : collect($data)->sum('jumlah'),
                         0, ',', '.'

@@ -23,17 +23,16 @@ class PendapatanController extends AdminController
             $grid->column('tanggal');
             $grid->column('keterangan');
 
-            // Filter
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
                 $filter->like('project.nama_project', 'Nama Project');
-                $filter->like('mitra.instansi', 'Mitra');
+                $filter->equal('id_mitra', 'Mitra')
+                    ->select(Mitra::pluck('instansi', 'id'));
                 $filter->between('tanggal', 'Tanggal')->date();
             });
 
-            // Tombol Cetak PDF yang ikut bawa filter
             $grid->tools(function (Grid\Tools $tools) {
-                $query = request()->getQueryString(); // ambil filter dari URL
+                $query = request()->getQueryString(); 
                 $url = url('admin/pendapatan/pdf') . ($query ? '?' . $query : '');
                 $tools->append('<a href="'.$url.'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
             });
@@ -83,25 +82,20 @@ class PendapatanController extends AdminController
             });
         }
 
-        // Filter by mitra
         if (request()->filled('mitra.instansi')) {
             $query->whereHas('mitra', function ($q) {
                 $q->where('instansi', 'like', '%' . request('mitra.instansi') . '%');
             });
         }
 
-        // Filter by tanggal
         if (request()->filled('tanggal.start') && request()->filled('tanggal.end')) {
             $query->whereBetween('tanggal', [request('tanggal.start'), request('tanggal.end')]);
         }
 
         $data = $query->get();
-
         $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
             ->setPaper('a4', 'portrait');
 
-        // Bisa download atau stream
         return $pdf->download('laporan-pendapatan.pdf');
-        // return $pdf->stream('laporan-pendapatan.pdf');
     }
 }
