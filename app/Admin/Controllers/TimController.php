@@ -204,8 +204,15 @@ class TimController extends AdminController
         $gaji->id_project = null;
         $gaji->save();
 
-        // Update sisa gaji di tim
-        $tim->gaji -= $data['jumlah'];
+        $gajiProject = \App\Models\Gaji::where('id_tim', $tim->id)
+            ->whereNotNull('id_project')
+            ->sum('jumlah');
+
+        $gajiAmbil = \App\Models\Gaji::where('id_tim', $tim->id)
+            ->whereNull('id_project')
+            ->sum('jumlah');
+
+        $tim->gaji = $gajiProject - $gajiAmbil;
         $tim->save();
 
         admin_success('Berhasil', "Pengambilan gaji berhasil, sisa gaji Rp " . number_format($tim->gaji, 0, ',', '.'));
