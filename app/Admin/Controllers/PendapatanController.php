@@ -25,14 +25,15 @@ class PendapatanController extends AdminController
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
-                $filter->like('project.nama_project', 'Nama Project');
+                $filter->equal('id_project', 'Nama Project')
+                    ->select(Project::pluck('nama_project', 'id'));
                 $filter->equal('id_mitra', 'Mitra')
                     ->select(Mitra::pluck('instansi', 'id'));
                 $filter->between('tanggal', 'Tanggal')->date();
             });
 
             $grid->tools(function (Grid\Tools $tools) {
-                $query = request()->getQueryString(); 
+                $query = request()->getQueryString();
                 $url = url('admin/pendapatan/pdf') . ($query ? '?' . $query : '');
                 $tools->append('<a href="'.$url.'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
             });
@@ -72,30 +73,30 @@ class PendapatanController extends AdminController
     }
 
     public function exportPdf()
-    {
-        $query = PendapatanModel::with(['project', 'mitra']);
+{
+    $query = PendapatanModel::with(['project', 'mitra']);
 
-        // Filter by project
-        if (request()->filled('project.nama_project')) {
-            $query->whereHas('project', function ($q) {
-                $q->where('nama_project', 'like', '%' . request('project.nama_project') . '%');
-            });
-        }
-
-        if (request()->filled('mitra.instansi')) {
-            $query->whereHas('mitra', function ($q) {
-                $q->where('instansi', 'like', '%' . request('mitra.instansi') . '%');
-            });
-        }
-
-        if (request()->filled('tanggal.start') && request()->filled('tanggal.end')) {
-            $query->whereBetween('tanggal', [request('tanggal.start'), request('tanggal.end')]);
-        }
-
-        $data = $query->get();
-        $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
-            ->setPaper('a4', 'portrait');
-
-        return $pdf->download('laporan-pendapatan.pdf');
+    // Filter by project (pakai id_project)
+    if (request()->filled('id_project')) {
+        $query->where('id_project', request('id_project'));
     }
+
+    // Filter by mitra (pakai id_mitra)
+    if (request()->filled('id_mitra')) {
+        $query->where('id_mitra', request('id_mitra'));
+    }
+
+    // Filter by tanggal
+    if (request()->filled('tanggal.start') && request()->filled('tanggal.end')) {
+        $query->whereBetween('tanggal', [request('tanggal.start'), request('tanggal.end')]);
+    }
+
+    $data = $query->get();
+
+    $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->download('laporan-pendapatan.pdf');
+}
+
 }

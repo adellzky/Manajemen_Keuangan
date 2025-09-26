@@ -53,7 +53,9 @@ class KeuanganController extends AdminController
             })->sortable();
 
             $grid->filter(function (Grid\Filter $filter) {
-                $filter->like('nama_project', 'Nama Project');
+                 $filter->panel()->expand(false);
+                 $filter->equal('id', 'Nama Project')
+                        ->select(Project::pluck('nama_project', 'id'));
             });
         });
     }

@@ -2,7 +2,7 @@
 
 namespace App\Admin\Controllers;
 
-use App\Admin\Repositories\Mitra;
+use App\Models\Mitra;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -28,10 +28,10 @@ class MitraController extends AdminController
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
-                $filter->equal('id', 'ID');
-                $filter->like('instansi', 'Instansi');
-                $filter->like('nama', 'Nama');
-                $filter->like('email', 'Email');
+                $filter->equal('instansi', 'Instansi')
+                    ->select(Mitra::pluck('instansi', 'instansi'));
+                $filter->equal('nama', 'Nama')
+                    ->select(Mitra::pluck('nama', 'nama'));
             });
         });
     }
