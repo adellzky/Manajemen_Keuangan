@@ -113,7 +113,7 @@
         </table>
     </div>
 
-    <h2>Slip Gaji</h2>
+    <h2>Bukti Pembayaran Gaji</h2>
     <p><b>Nama:</b> {{ $tim->nama }}</p>
     <p><b>No. Rekening:</b> {{ $tim->norek }} ({{ $tim->atm }})</p>
 

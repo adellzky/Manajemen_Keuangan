@@ -39,11 +39,6 @@ class GajiController extends AdminController
                 $filter->panel()->expand(false);
                 $filter->equal('id_tim', 'Karyawan')->select(Tim::pluck('nama', 'id'));
                 $filter->equal('id_project', 'Project')->select(Project::pluck('nama_project', 'id'));
-                $filter->month('tanggal', 'Bulan Gaji');
-                $filter->equal('metode_bayar', 'Metode Bayar')->select([
-                    'Transfer' => 'Transfer',
-                    'Cash' => 'Cash',
-                ]);
 
 
             });
@@ -187,10 +182,11 @@ class GajiController extends AdminController
                 );
 
                 $form->date('tanggal')->default(now());
-                $form->select('metode_bayar')->options([
-                    'Transfer' => 'Transfer',
-                    'Cash'     => 'Cash',
-                ])->default('Transfer');
+               $form->radio('metode_bayar', 'Metode Bayar')
+                ->options(['Transfer' => 'Transfer'])
+                ->default('Transfer');
+
+
 
                 $form->display('created_at');
                 $form->display('updated_at');
@@ -289,8 +285,16 @@ class GajiController extends AdminController
             // update total gaji karyawan
             $tim = \App\Models\Tim::find($row['id_tim']);
             if ($tim) {
-                $tim->gaji = \App\Models\Gaji::where('id_tim', $tim->id)->sum('jumlah');
-                $tim->save();
+                $gajiProject = \App\Models\Gaji::where('id_tim', $tim->id)
+                ->whereNotNull('id_project')
+                ->sum('jumlah');
+
+            $gajiAmbil = \App\Models\Gaji::where('id_tim', $tim->id)
+                ->whereNull('id_project')
+                ->sum('jumlah');
+
+            $tim->gaji = $gajiProject - $gajiAmbil;
+            $tim->save();
             }
         }
     }
