@@ -32,10 +32,10 @@ Route::group([
     $router->get('pengeluaran/pdf', [PengeluaranController::class, 'exportPdf']);
     $router->resource('/pengeluaran', PengeluaranController::class);
     $router->resource('/tim', TimController::class);
-    $router->resource('/gaji', GajiController::class);
+    $router->resource('/gaji', GajiController::class); 
     $router->resource('/keuangan', KeuanganController::class);
     $router->get('tim/{id}/slip', [TimController::class, 'slip']);
-
+    
 
 });
 
