@@ -32,7 +32,9 @@ class PendapatanController extends AdminController
             });
 
             $grid->tools(function (Grid\Tools $tools) {
-                $tools->append('<a href="'.url('admin/pendapatan/pdf').'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
+                $query = request()->getQueryString(); 
+                $url = url('admin/pendapatan/pdf') . ($query ? '?' . $query : '');
+                $tools->append('<a href="'.$url.'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
             });
         });
     }
@@ -73,6 +75,7 @@ class PendapatanController extends AdminController
     {
         $query = PendapatanModel::with(['project', 'mitra']);
 
+        // Filter by project
         if (request()->filled('project.nama_project')) {
             $query->whereHas('project', function ($q) {
                 $q->where('nama_project', 'like', '%' . request('project.nama_project') . '%');
@@ -90,7 +93,6 @@ class PendapatanController extends AdminController
         }
 
         $data = $query->get();
-
         $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
             ->setPaper('a4', 'portrait');
 

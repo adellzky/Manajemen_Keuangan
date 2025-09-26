@@ -10,6 +10,7 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 
 class PengeluaranController extends AdminController
 {
@@ -36,7 +37,7 @@ class PengeluaranController extends AdminController
             });
 
             $grid->tools(function (Grid\Tools $tools) {
-                $tools->append('<a href="'.url('admin/pengeluaran/pdf').'" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
+                $tools->append('<a href="' . url('admin/pengeluaran/pdf?' . request()->getQueryString()) . '" target="_blank" class="btn btn-sm btn-primary">Cetak PDF</a>');
             });
         });
     }
@@ -91,28 +92,27 @@ class PengeluaranController extends AdminController
                     $kas->save();
                 }
             });
-
         });
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        // ambil semua data dengan relasi project
-        $data = Pengeluaran::with('project')->get();
+        $query = Pengeluaran::with('project');
 
-        // kalau data hanya 1 (bukan collection), tetap dijadikan collection
-        $isSingle = false;
-        if ($data instanceof \Illuminate\Database\Eloquent\Collection) {
-            $total = $data->sum('jumlah');
-        } else {
-            $isSingle = true;
-            $total = $data->jumlah;
+        if ($request->filled('id_project')) {
+            $query->where('id_project', $request->id_project);
         }
 
-        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data', 'total', 'isSingle'))
+        if ($request->filled('tanggal.0') && $request->filled('tanggal.1')) {
+            $query->whereBetween('tanggal', [$request->input('tanggal.0'), $request->input('tanggal.1')]);
+        }
+
+        $data = $query->get();
+        $total = $data->sum('jumlah');
+
+        $pdf = Pdf::loadView('pdf.pengeluaran', compact('data', 'total'))
             ->setPaper('a4', 'portrait');
 
         return $pdf->download('laporan-pengeluaran.pdf');
     }
-
 }
