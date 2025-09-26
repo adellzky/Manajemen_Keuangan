@@ -10,7 +10,7 @@
             margin: 20px;
         }
 
-            .kop-surat {
+        .kop-surat {
             width: 100%;
             text-align: center;
             border-bottom: 3px solid #000; 
@@ -73,7 +73,11 @@
             background-color: #ffffff;
         }
 
-        /* Footer */
+        tfoot td {
+            font-weight: bold;
+            background-color: #e6f0ff;
+        }
+
         .footer {
             margin-top: 40px;
             text-align: left;
@@ -135,6 +139,17 @@
                 @endforeach
             @endif
         </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="text-align:center;">TOTAL</td>
+                <td colspan="3">
+                    Rp {{ number_format(
+                        isset($data->id_pendapatan) ? $data->jumlah : collect($data)->sum('jumlah'),
+                        0, ',', '.'
+                    ) }}
+                </td>
+            </tr>
+        </tfoot>
     </table>
 
     <div class="footer">
