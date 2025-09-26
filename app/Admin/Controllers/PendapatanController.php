@@ -26,7 +26,8 @@ class PendapatanController extends AdminController
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
                 $filter->like('project.nama_project', 'Nama Project');
-                $filter->like('mitra.instansi', 'Mitra');
+                $filter->equal('id_mitra', 'Mitra')
+                    ->select(Mitra::pluck('instansi', 'id'));
                 $filter->between('tanggal', 'Tanggal')->date();
             });
 
