@@ -29,7 +29,7 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 3,
@@ -41,7 +41,7 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 4,
@@ -53,7 +53,7 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 5,
@@ -65,7 +65,7 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 6,
@@ -77,7 +77,7 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 7,
@@ -89,127 +89,127 @@ class AdminTablesSeeder extends Seeder
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 9,
                     "parent_id" => 14,
-                    "order" => 5,
+                    "order" => 6,
                     "title" => "Pendapatan",
-                    "icon" => "fa-download",
+                    "icon" => "fa-upload",
                     "uri" => "/pendapatan",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:24:22",
-                    "updated_at" => "2025-09-19 04:00:34"
-                ],
-                [
-                    "id" => 10,
-                    "parent_id" => 0,
-                    "order" => 2,
-                    "title" => "Keuangan Perusahaan",
-                    "icon" => "fa-building",
-                    "uri" => "/kas",
-                    "extension" => "",
-                    "show" => 1,
-                    "created_at" => "2025-09-16 04:24:57",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-29 10:34:23"
                 ],
                 [
                     "id" => 11,
                     "parent_id" => 14,
-                    "order" => 6,
+                    "order" => 7,
                     "title" => "Pengeluaran",
-                    "icon" => "fa-upload",
+                    "icon" => "fa-download",
                     "uri" => "/pengeluaran",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:27:40",
-                    "updated_at" => "2025-09-19 04:00:34"
+                    "updated_at" => "2025-09-29 10:34:12"
                 ],
                 [
                     "id" => 12,
                     "parent_id" => 19,
-                    "order" => 9,
+                    "order" => 10,
                     "title" => "Gaji",
                     "icon" => "fa-cc",
                     "uri" => "/gaji",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:28:21",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 14,
                     "parent_id" => 0,
-                    "order" => 3,
+                    "order" => 4,
                     "title" => "Project",
                     "icon" => "fa-cubes",
                     "uri" => "/project",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:29:39",
-                    "updated_at" => "2025-09-19 03:58:24"
-                ],
-                [
-                    "id" => 15,
-                    "parent_id" => 0,
-                    "order" => 10,
-                    "title" => "Rekap Kuangan",
-                    "icon" => "fa-dollar",
-                    "uri" => "/rekap-keuangan",
-                    "extension" => "",
-                    "show" => 1,
-                    "created_at" => "2025-09-16 04:34:07",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 16,
                     "parent_id" => 0,
-                    "order" => 1,
+                    "order" => 3,
                     "title" => "Mitra",
                     "icon" => "fa-address-book",
                     "uri" => "/mitra",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-19 03:50:38",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-29 10:34:53"
                 ],
                 [
                     "id" => 17,
                     "parent_id" => 14,
-                    "order" => 4,
+                    "order" => 5,
                     "title" => "Detail Project",
                     "icon" => "fa-joomla",
                     "uri" => "/project",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-19 03:54:05",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 18,
                     "parent_id" => 19,
-                    "order" => 8,
+                    "order" => 9,
                     "title" => "Tim",
                     "icon" => "fa-user-circle",
                     "uri" => "/tim",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-19 03:56:21",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
                 ],
                 [
                     "id" => 19,
                     "parent_id" => 0,
-                    "order" => 7,
+                    "order" => 8,
                     "title" => "Tim",
                     "icon" => "fa-users",
                     "uri" => NULL,
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-19 03:57:34",
-                    "updated_at" => "2025-09-19 03:58:24"
+                    "updated_at" => "2025-09-25 11:49:30"
+                ],
+                [
+                    "id" => 22,
+                    "parent_id" => 0,
+                    "order" => 1,
+                    "title" => "Keuangan Ironative",
+                    "icon" => "fa-bank",
+                    "uri" => "/keuangan",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-25 11:47:04",
+                    "updated_at" => "2025-09-29 10:34:53"
+                ],
+                [
+                    "id" => 23,
+                    "parent_id" => 0,
+                    "order" => 2,
+                    "title" => "Keuangan Project",
+                    "icon" => "fa-dollar",
+                    "uri" => "/keuangan-project",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-09-25 11:48:08",
+                    "updated_at" => "2025-09-29 10:34:53"
                 ]
             ]
         );
@@ -339,12 +339,6 @@ class AdminTablesSeeder extends Seeder
                 ],
                 [
                     "role_id" => 1,
-                    "menu_id" => 10,
-                    "created_at" => "2025-09-16 04:24:57",
-                    "updated_at" => "2025-09-16 04:24:57"
-                ],
-                [
-                    "role_id" => 1,
                     "menu_id" => 12,
                     "created_at" => "2025-09-16 04:28:21",
                     "updated_at" => "2025-09-16 04:28:21"
@@ -378,6 +372,18 @@ class AdminTablesSeeder extends Seeder
                     "menu_id" => 19,
                     "created_at" => "2025-09-19 03:57:34",
                     "updated_at" => "2025-09-19 03:57:34"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 22,
+                    "created_at" => "2025-09-25 11:47:04",
+                    "updated_at" => "2025-09-25 11:47:04"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 23,
+                    "created_at" => "2025-09-25 11:48:08",
+                    "updated_at" => "2025-09-25 11:48:08"
                 ]
             ]
         );
