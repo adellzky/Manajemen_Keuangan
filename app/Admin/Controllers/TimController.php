@@ -10,6 +10,7 @@ use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Dcat\Admin\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Dcat\Admin\Layout\Content;
 
@@ -166,23 +167,31 @@ class TimController extends AdminController
     {
         $tim = \App\Models\Tim::findOrFail($id);
 
-        return Form::make(new \App\Models\Gaji(), function (Form $form) use ($tim) {
-            $form->hidden('id_tim')->value($tim->id);
-            $form->display('nama_karyawan', 'Nama Karyawan')->default($tim->nama);
-            $form->display('total_gaji', 'Total Gaji Tersedia')->with(function () use ($tim) {
-            return 'Rp ' . number_format($tim->gaji, 0, ',', '.');
-         });
+        return Content::make(function (Content $content) use ($tim) {
+            $content->header("Ambil Gaji - {$tim->nama}");
+            $content->description('Form pengambilan gaji');
 
-            $form->currency('jumlah', 'Nominal Ambil')
-                ->symbol('Rp')
-                ->rules("max:{$tim->gaji}")
-                ->required();
+            $content->body(
+                Form::make(new \App\Models\Gaji(), function (Form $form) use ($tim) {
+                    $form->hidden('id_tim')->value($tim->id);
+                    $form->display('nama_karyawan', 'Nama Karyawan')->default($tim->nama);
+                    $form->display('total_gaji', 'Total Gaji Tersedia')->with(function () use ($tim) {
+                        return 'Rp ' . number_format($tim->gaji, 0, ',', '.');
+                    });
 
-            $form->date('tanggal')->default(now());
-            $form->hidden('metode_bayar')->value('Transfer');
+                    $form->number('jumlah', 'Nominal Ambil')
+                        ->min(1)
+                        ->max($tim->gaji)
+                        ->required()
+                        ->help('Masukkan nominal tanpa titik/koma, contoh: 3000 (Rp 3.000)');
 
-            $form->hidden('id_project')->value(null);
-        })->action(url("admin/tim/{$tim->id}/ambil-gaji"));
+
+                    $form->date('tanggal')->default(now());
+                    $form->hidden('metode_bayar')->value('Transfer');
+                    $form->hidden('id_project')->value(null);
+                })->action(url("admin/tim/{$tim->id}/ambil-gaji"))
+            );
+        });
     }
 
     public function storeAmbilGaji($id)
@@ -191,10 +200,13 @@ class TimController extends AdminController
 
         $data = request()->all();
 
-       if ($data['jumlah'] > $tim->gaji) {
-        admin_error('Gagal', 'Nominal gaji melebihi total gaji yang tersedia, gaji tidak bisa diambil.');
-        return back();
-    }
+        $data['jumlah'] = preg_replace('/[^\d]/', '', $data['jumlah']);
+        $data['jumlah'] = (int) $data['jumlah'];
+
+        if ($data['jumlah'] > $tim->gaji) {
+            admin_error('Gagal', 'Nominal gaji melebihi total gaji yang tersedia, gaji tidak bisa diambil.');
+            return back();
+        }
 
         // Simpan data gaji
         $gaji = new \App\Models\Gaji();
@@ -218,6 +230,7 @@ class TimController extends AdminController
 
         admin_success('Berhasil', "Pengambilan gaji berhasil, sisa gaji Rp " . number_format($tim->gaji, 0, ',', '.'));
 
-        return redirect(admin_url('tim'));
+        return JsonResponse::make()
+            ->redirect(admin_url('tim'));
     }
 }
