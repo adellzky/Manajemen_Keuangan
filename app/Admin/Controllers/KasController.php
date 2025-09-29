@@ -11,7 +11,6 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
-use Illuminate\Support\Collection;
 use Dcat\Admin\Http\Controllers\AdminController;
 use Dcat\Admin\Show;
 

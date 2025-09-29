@@ -12,6 +12,7 @@ class Kas extends Model
     protected $table = 'kas';
     protected $fillable = [
         'jumlah',
+        'cash',
         'tanggal',
         'keterangan',
         'saldo_akhir',
@@ -32,9 +33,5 @@ class Kas extends Model
         return $this->hasMany(Gaji::class, 'id_project', 'id');
     }
 
-    // public function cash()
-    // {
-    //     return $this->hasMany(Cash::class, 'id_kas');
-    // }
 
 }

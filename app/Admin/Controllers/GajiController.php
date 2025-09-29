@@ -21,6 +21,7 @@ class GajiController extends AdminController
     {
         return Grid::make(new Gaji(), function (Grid $grid) {
             $grid->model()->whereNotNull('id_project');
+            $grid->column('tanggal')->sortable();
             $grid->column('id_tim', 'Karyawan')
                 ->display(function ($id) {
                     return Tim::find($id)?->nama ?? '-';
@@ -32,8 +33,6 @@ class GajiController extends AdminController
             $grid->column('jumlah', 'Jumlah')->display(function ($val) {
                 return 'Rp ' . number_format($val, 0, ',', '.');
             });
-            $grid->column('tanggal')->sortable();
-            $grid->column('metode_bayar');
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
