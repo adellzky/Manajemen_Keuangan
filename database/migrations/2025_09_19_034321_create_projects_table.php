@@ -20,7 +20,7 @@ return new class extends Migration
             $table->bigInteger('harga');
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
-            $table->enum('status', ['Proses', 'Selesai'])->default('Proses');
+            $table->enum('status', ['Belum','Proses', 'Selesai', 'Batal'])->default('Belum');
             $table->enum('status_bayar', ['Belum', 'Dp', 'Lunas'])->default('Belum');
             $table->timestamps();
 

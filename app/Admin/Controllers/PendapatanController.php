@@ -17,10 +17,10 @@ class PendapatanController extends AdminController
     protected function grid()
     {
         return Grid::make(Pendapatan::with(['project', 'mitra']), function (Grid $grid) {
+            $grid->column('tanggal');
             $grid->column('project.nama_project', 'Nama Project');
             $grid->column('mitra.instansi', 'Mitra');
             $grid->column('jumlah')->display(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
-            $grid->column('tanggal');
             $grid->column('keterangan');
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -43,10 +43,10 @@ class PendapatanController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Pendapatan(), function (Show $show) {
+            $show->field('tanggal');
             $show->field('project.nama_project', 'Nama Project');
             $show->field('mitra.instansi', 'Mitra');
             $show->field('jumlah')->as(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
-            $show->field('tanggal');
             $show->field('keterangan');
             $show->field('created_at');
             $show->field('updated_at');

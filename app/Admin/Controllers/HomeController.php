@@ -93,13 +93,13 @@ class HomeController extends Controller
         </script>';
 
         // Projects mendekati deadline
-        $today     = now();
-        $limitDate = now()->addDays(20);
+        // $today     = now();
+        // $limitDate = now()->addDays(20);
 
         $projects = Project::where('status', 'proses')
-            ->whereBetween('tanggal_selesai', [$today, $limitDate])
+            // ->whereBetween('tanggal_selesai', [$today, $limitDate])
             ->orderBy('tanggal_selesai', 'asc')
-            ->get(['nama_project', 'tanggal_mulai', 'tanggal_selesai', 'status']);
+            ->get(['nama_project', 'tanggal_mulai', 'tanggal_selesai']);
 
         $projectRows = [];
         foreach ($projects as $p) {
@@ -112,7 +112,7 @@ class HomeController extends Controller
         }
 
         $projectTable = new Table(
-            ['Nama Project', 'Tanggal Mulai', 'Tanggal Selesai', 'Status'],
+            ['Nama Project', 'Tanggal Mulai', 'Tanggal Selesai'],
             $projectRows
         );
 
@@ -139,12 +139,9 @@ class HomeController extends Controller
                 $row->column(4, $this->infoBox('Saldo Cash', 'warning', $saldoCash, true, 'fa fa-money'));
                 $row->column(4, $this->infoBox('Keseluruhan', 'success', $keseluruhan, true, 'fa fa-database'));
 
-
-
-
                 // Chart dan project
                 $row->column(12, new Box('Grafik Pemasukan & Pengeluaran (Bulanan)', $chartHtml));
-                $row->column(12, new Box('Project Berjalan (Mendekati Deadline)', $projectTable));
+                $row->column(12, new Box('Project Berjalan', $projectTable));
             });
     }
 
