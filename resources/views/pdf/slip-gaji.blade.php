@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Slip Gaji - {{ $tim->nama }}</title>
@@ -54,7 +55,8 @@
             font-size: 12px;
         }
 
-        th, td {
+        th,
+        td {
             border: 1px solid #000;
             padding: 6px;
             text-align: left;
@@ -92,6 +94,7 @@
         }
     </style>
 </head>
+
 <body>
 
     {{-- HEADER / KOP SURAT --}}
@@ -113,7 +116,7 @@
         </table>
     </div>
 
-    <h2>Bukti Pembayaran Gaji</h2>
+    <h2>Slip Gaji</h2>
     <p><b>Periode:</b> {{ \Carbon\Carbon::create()->month($bulan)->year($tahun)->translatedFormat('F Y') }}</p>
     <p><b>Nama:</b> {{ $tim->nama }}</p>
     <p><b>No. Rekening:</b> {{ $tim->norek }} ({{ $tim->atm }})</p>
@@ -121,38 +124,37 @@
 
 
 
-<h3>Rincian Gaji</h3>
-<table>
-    <thead>
-        <tr>
-            <th>Tanggal</th>
-            <th>Project / Keterangan</th>
-            <th>Nominal</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{-- Gaji per project --}}
-        @foreach($gajis->whereNotNull('id_project') as $gaji)
+    <h3>Rincian Gaji</h3>
+    <table>
+        <thead>
             <tr>
-                <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
-                <td>{{ $gaji->project->nama_project ?? '-' }} <span style="color: green;">(Gaji Project)</span></td>
-                <td style="text-align:right">Rp {{ number_format($gaji->jumlah,0,',','.') }}</td>
+                <th>Tanggal</th>
+                <th>Project / Keterangan</th>
+                <th>Nominal</th>
             </tr>
-        @endforeach
-    </tbody>
-    <tfoot>
-        <tr>
-            <th colspan="2">Total Gaji</th>
-            <th style="text-align:right">
-                Rp {{ number_format($gajis->sum('jumlah'), 0, ',', '.') }}
-            </th>
-        </tr>
-    </tfoot>
-
-</table>
+        </thead>
+        <tbody>
+            @foreach ($gajis as $gaji)
+                <tr>
+                    <td>{{ \Carbon\Carbon::parse($gaji->tanggal)->translatedFormat('d F Y') }}</td>
+                    <td>{{ $gaji->project->nama_project ?? '-' }}</td>
+                    <td style="text-align:right">Rp {{ number_format($gaji->jumlah, 0, ',', '.') }}</td>
+                </tr>
+            @endforeach
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="2">Total Gaji</th>
+                <th style="text-align:right">
+                    Rp {{ number_format($gajis->sum('jumlah'), 0, ',', '.') }}
+                </th>
+            </tr>
+        </tfoot>
+    </table>
     <div class="footer" style="text-align: left;">
         Dicetak pada: {{ \Carbon\Carbon::now()->format('d-m-Y H:i') }}
     </div>
 
 </body>
+
 </html>

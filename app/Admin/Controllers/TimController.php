@@ -162,6 +162,7 @@ class TimController extends AdminController
         // filter data gaji per bulan
         $gajis = $tim->gajis()
             ->with('project')
+            ->whereNotNull('id_project')
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->get();
