@@ -139,7 +139,7 @@ class TimController extends AdminController
         return Form::make(new Tim(), function (Form $form) {
             $form->display('id');
             $form->text('nama')->required();
-            $form->mobile('no_telp')->required();
+            $form->text('no_telp')->required();
             $form->text('atm')->required();
             $form->text('norek')->required();
             // $form->currency('gaji', 'Gaji')
@@ -154,13 +154,22 @@ class TimController extends AdminController
     {
         $tim = \App\Models\Tim::with(['gajis.project'])->findOrFail($id);
 
-        // data gaji per bulan
-        $gajis = $tim->gajis()->with('project')->get();
 
-        $pdf = Pdf::loadView('pdf.slip-gaji', compact('tim', 'gajis'))
+        // ambil bulan & tahun dari request (default bulan sekarang)
+        $bulan = request('bulan', now()->month);
+        $tahun = request('tahun', now()->year);
+
+        // filter data gaji per bulan
+        $gajis = $tim->gajis()
+            ->with('project')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->get();
+
+        $pdf = Pdf::loadView('pdf.slip-gaji', compact('tim', 'gajis', 'bulan', 'tahun'))
             ->setPaper('A4', 'portrait');
 
-        return $pdf->stream("slip-gaji-{$tim->nama}.pdf");
+        return $pdf->stream("slip-gaji-{$tim->nama}-{$bulan}-{$tahun}.pdf");
     }
 
     public function ambilGaji($id)

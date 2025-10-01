@@ -38,5 +38,6 @@ Route::group([
     $router->get('tim/{id}/slip', [TimController::class, 'slip']);
     $router->get('tim/{id}/ambil-gaji', [TimController::class, 'ambilGaji']);
     $router->post('tim/{id}/ambil-gaji', [TimController::class, 'storeAmbilGaji'])->name('tim.store-ambil-gaji');
+    
 });
 

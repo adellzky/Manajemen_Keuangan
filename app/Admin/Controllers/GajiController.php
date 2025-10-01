@@ -185,8 +185,6 @@ class GajiController extends AdminController
                 ->options(['Transfer' => 'Transfer'])
                 ->default('Transfer');
 
-
-
                 $form->display('created_at');
                 $form->display('updated_at');
 
