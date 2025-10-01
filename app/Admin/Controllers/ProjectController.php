@@ -7,6 +7,8 @@ use App\Models\Mitra;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Dcat\Admin\Grid\Displayers\Expand;
+use Illuminate\Support\Str;
 use Dcat\Admin\Http\Controllers\AdminController;
 
 class ProjectController extends AdminController
@@ -17,23 +19,45 @@ class ProjectController extends AdminController
             $grid->column('mitra.instansi', 'Mitra');
             $grid->column('kategori');
             $grid->column('nama_project');
-            // $grid->column('deskripsi')->display(function ($val) {
-            //    return \Illuminate\Support\Str::limit($val, 20, '...');
-            // });
-            $grid->column('harga', 'Harga')->display(function ($val) {
-                return 'Rp ' . number_format($val, 0, ',', '.');
-            });
-            $grid->column('tanggal_mulai', 'Mulai');
-            $grid->column('tanggal_selesai', 'Selesai');
             $grid->column('status')->label([
+                'Belum'   => 'info',
+                'Proses'  => 'primary',
                 'Selesai' => 'success',
-                'Proses' => 'primary',
+                'Batal'   => 'danger',
             ]);
+
             $grid->column('status_bayar')->label([
                 'Belum' => 'danger',
                 'Dp'    => 'primary',
                 'Lunas' => 'success',
             ]);
+
+            // kolom deskripsi, tampil ringkas & expand klik
+            $grid->column('Detail')
+                ->display(function ($val) {
+                    return Str::limit($val, 30, '...');
+                })
+                ->expand(function (Expand $expand) {
+                    // optional: ganti nama tombol
+                    $expand->button('');
+
+                    // escape untuk mencegah XSS
+                    $deskripsi = e($this->deskripsi);
+                    $harga = 'Rp ' . number_format($this->harga ?? 0, 0, ',', '.');
+                    $mulai = e($this->tanggal_mulai);
+                    $selesai = e($this->tanggal_selesai);
+
+                    return <<<HTML
+            <div style="padding:10px;">
+            <table class="table table-sm" style="margin-bottom:0">
+                <tr><th style="width:120px">Deskripsi</th><td>{$deskripsi}</td></tr>
+                <tr><th>Harga</th><td>{$harga}</td></tr>
+                <tr><th>Mulai</th><td>{$mulai}</td></tr>
+                <tr><th>Selesai</th><td>{$selesai}</td></tr>
+            </table>
+            </div>
+            HTML;
+                });
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
@@ -85,9 +109,11 @@ class ProjectController extends AdminController
             $form->date('tanggal_selesai');
             $form->radio('status', 'Status')
                 ->options([
+                    'Belum' => 'Belum',
                     'Proses'  => 'Proses',
                     'Selesai' => 'Selesai',
-                ])->default('Proses')->required();
+                    'Batal' => 'Batal',
+                ])->default('Belum')->required();
 
             $form->radio('status_bayar', 'Status Bayar')
                 ->options([

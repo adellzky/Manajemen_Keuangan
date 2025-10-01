@@ -17,6 +17,7 @@ class PengeluaranController extends AdminController
     protected function grid()
     {
         return Grid::make(new Pengeluaran(), function (Grid $grid) {
+            $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('project.nama_project', 'Project')->display(function ($val) {
                 return $this->id_project ? $val : ' -';
             });
@@ -27,7 +28,6 @@ class PengeluaranController extends AdminController
 
             $grid->column('jumlah', 'Jumlah')->display(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
             $grid->column('sumber_dana', 'Sumber Dana');
-            $grid->column('tanggal', 'Tanggal')->sortable();
             $grid->column('keterangan', 'Keterangan');
 
             $grid->filter(function (Grid\Filter $filter) {
@@ -45,10 +45,10 @@ class PengeluaranController extends AdminController
     protected function detail($id)
     {
         return Show::make($id, new Pengeluaran(), function (Show $show) {
+            $show->field('tanggal', 'Tanggal');
             $show->field('project.nama_project', 'Project')->as(fn($val) => $val ?? '-');
             $show->field('nama_project_manual', 'Nama Pengeluaran Lain')->as(fn($val) => $val ?? '-');
             $show->field('jumlah', 'Jumlah')->as(fn($val) => 'Rp ' . number_format($val, 0, ',', '.'));
-            $show->field('tanggal', 'Tanggal');
             $show->field('keterangan', 'Keterangan');
             $show->field('created_at', 'Dibuat');
             $show->field('updated_at', 'Diperbarui');
