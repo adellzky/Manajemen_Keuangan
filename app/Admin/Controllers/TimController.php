@@ -35,15 +35,32 @@ class TimController extends AdminController
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $id = $actions->getKey();
 
-                // tombol slip
-                $actions->append("<a href='" . url("admin/tim/$id/slip") . "' target='_blank' class='btn btn-sm btn-primary'>
-                    <i class='feather icon-file-text'></i> Slip Gaji
-                </a>");
+                // Tombol slip dengan filter bulan/tahun
+                $actions->append("
+        <form method='GET' action='" . url("admin/tim/$id/slip") . "' target='_blank' style='display:inline'>
+            <select name='bulan' style='padding:2px'>
+                " . collect(range(1, 12))->map(function ($m) {
+                    return "<option value='$m'>" . \Carbon\Carbon::create()->month($m)->translatedFormat('F') . "</option>";
+                })->implode('') . "
+            </select>
+           <select name='tahun' style='padding:2px'>
+                " . collect(range(2025, now()->year + 5))->map(function ($y) {
+                    return "<option value='$y'>$y</option>";
+                })->implode('') . "
+          </select>
 
+            <button type='submit' class='btn btn-sm btn-primary'>
+                <i class='feather icon-file-text'></i> Slip Gaji
+            </button>
+        </form>
+    ");
+
+                // Tombol ambil gaji
                 $actions->append("<a href='" . url("admin/tim/$id/ambil-gaji") . "' class='btn btn-sm btn-warning'>
-                    <i class='feather icon-credit-card'></i> Ambil Gaji
-                </a>");
+        <i class='feather icon-credit-card'></i> Ambil Gaji
+    </a>");
             });
+
 
             $grid->filter(function (Grid\Filter $filter) {
                 $filter->panel()->expand(false);
@@ -154,12 +171,9 @@ class TimController extends AdminController
     {
         $tim = \App\Models\Tim::with(['gajis.project'])->findOrFail($id);
 
-
-        // ambil bulan & tahun dari request (default bulan sekarang)
         $bulan = request('bulan', now()->month);
         $tahun = request('tahun', now()->year);
 
-        // filter data gaji per bulan
         $gajis = $tim->gajis()
             ->with('project')
             ->whereNotNull('id_project')
@@ -172,6 +186,7 @@ class TimController extends AdminController
 
         return $pdf->stream("slip-gaji-{$tim->nama}-{$bulan}-{$tahun}.pdf");
     }
+
 
     public function ambilGaji($id)
     {
