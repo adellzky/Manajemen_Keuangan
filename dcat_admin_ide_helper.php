@@ -36,9 +36,10 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection password
      * @property Grid\Column|Collection avatar
      * @property Grid\Column|Collection remember_token
-     * @property Grid\Column|Collection id_kas
-     * @property Grid\Column|Collection jumlah
-     * @property Grid\Column|Collection tanggal
+     * @property Grid\Column|Collection id_hutang
+     * @property Grid\Column|Collection id_gaji
+     * @property Grid\Column|Collection nominal_cicilan
+     * @property Grid\Column|Collection tanggal_bayar
      * @property Grid\Column|Collection keterangan
      * @property Grid\Column|Collection uuid
      * @property Grid\Column|Collection connection
@@ -48,7 +49,14 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection failed_at
      * @property Grid\Column|Collection id_tim
      * @property Grid\Column|Collection id_project
+     * @property Grid\Column|Collection jumlah
+     * @property Grid\Column|Collection tanggal
      * @property Grid\Column|Collection metode_bayar
+     * @property Grid\Column|Collection jumlah_hutang
+     * @property Grid\Column|Collection tanggal_pinjam
+     * @property Grid\Column|Collection sisa_hutang
+     * @property Grid\Column|Collection status
+     * @property Grid\Column|Collection cash
      * @property Grid\Column|Collection saldo_akhir
      * @property Grid\Column|Collection instansi
      * @property Grid\Column|Collection nama
@@ -59,6 +67,8 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection norek
      * @property Grid\Column|Collection token
      * @property Grid\Column|Collection id_mitra
+     * @property Grid\Column|Collection nama_project_manual
+     * @property Grid\Column|Collection sumber_dana
      * @property Grid\Column|Collection tokenable_type
      * @property Grid\Column|Collection tokenable_id
      * @property Grid\Column|Collection abilities
@@ -70,7 +80,6 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection harga
      * @property Grid\Column|Collection tanggal_mulai
      * @property Grid\Column|Collection tanggal_selesai
-     * @property Grid\Column|Collection status
      * @property Grid\Column|Collection status_bayar
      * @property Grid\Column|Collection no_telp
      * @property Grid\Column|Collection atm
@@ -102,9 +111,10 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection password(string $label = null)
      * @method Grid\Column|Collection avatar(string $label = null)
      * @method Grid\Column|Collection remember_token(string $label = null)
-     * @method Grid\Column|Collection id_kas(string $label = null)
-     * @method Grid\Column|Collection jumlah(string $label = null)
-     * @method Grid\Column|Collection tanggal(string $label = null)
+     * @method Grid\Column|Collection id_hutang(string $label = null)
+     * @method Grid\Column|Collection id_gaji(string $label = null)
+     * @method Grid\Column|Collection nominal_cicilan(string $label = null)
+     * @method Grid\Column|Collection tanggal_bayar(string $label = null)
      * @method Grid\Column|Collection keterangan(string $label = null)
      * @method Grid\Column|Collection uuid(string $label = null)
      * @method Grid\Column|Collection connection(string $label = null)
@@ -114,7 +124,14 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection failed_at(string $label = null)
      * @method Grid\Column|Collection id_tim(string $label = null)
      * @method Grid\Column|Collection id_project(string $label = null)
+     * @method Grid\Column|Collection jumlah(string $label = null)
+     * @method Grid\Column|Collection tanggal(string $label = null)
      * @method Grid\Column|Collection metode_bayar(string $label = null)
+     * @method Grid\Column|Collection jumlah_hutang(string $label = null)
+     * @method Grid\Column|Collection tanggal_pinjam(string $label = null)
+     * @method Grid\Column|Collection sisa_hutang(string $label = null)
+     * @method Grid\Column|Collection status(string $label = null)
+     * @method Grid\Column|Collection cash(string $label = null)
      * @method Grid\Column|Collection saldo_akhir(string $label = null)
      * @method Grid\Column|Collection instansi(string $label = null)
      * @method Grid\Column|Collection nama(string $label = null)
@@ -125,6 +142,8 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection norek(string $label = null)
      * @method Grid\Column|Collection token(string $label = null)
      * @method Grid\Column|Collection id_mitra(string $label = null)
+     * @method Grid\Column|Collection nama_project_manual(string $label = null)
+     * @method Grid\Column|Collection sumber_dana(string $label = null)
      * @method Grid\Column|Collection tokenable_type(string $label = null)
      * @method Grid\Column|Collection tokenable_id(string $label = null)
      * @method Grid\Column|Collection abilities(string $label = null)
@@ -136,7 +155,6 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection harga(string $label = null)
      * @method Grid\Column|Collection tanggal_mulai(string $label = null)
      * @method Grid\Column|Collection tanggal_selesai(string $label = null)
-     * @method Grid\Column|Collection status(string $label = null)
      * @method Grid\Column|Collection status_bayar(string $label = null)
      * @method Grid\Column|Collection no_telp(string $label = null)
      * @method Grid\Column|Collection atm(string $label = null)
@@ -173,9 +191,10 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection password
      * @property Show\Field|Collection avatar
      * @property Show\Field|Collection remember_token
-     * @property Show\Field|Collection id_kas
-     * @property Show\Field|Collection jumlah
-     * @property Show\Field|Collection tanggal
+     * @property Show\Field|Collection id_hutang
+     * @property Show\Field|Collection id_gaji
+     * @property Show\Field|Collection nominal_cicilan
+     * @property Show\Field|Collection tanggal_bayar
      * @property Show\Field|Collection keterangan
      * @property Show\Field|Collection uuid
      * @property Show\Field|Collection connection
@@ -185,7 +204,14 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection failed_at
      * @property Show\Field|Collection id_tim
      * @property Show\Field|Collection id_project
+     * @property Show\Field|Collection jumlah
+     * @property Show\Field|Collection tanggal
      * @property Show\Field|Collection metode_bayar
+     * @property Show\Field|Collection jumlah_hutang
+     * @property Show\Field|Collection tanggal_pinjam
+     * @property Show\Field|Collection sisa_hutang
+     * @property Show\Field|Collection status
+     * @property Show\Field|Collection cash
      * @property Show\Field|Collection saldo_akhir
      * @property Show\Field|Collection instansi
      * @property Show\Field|Collection nama
@@ -196,6 +222,8 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection norek
      * @property Show\Field|Collection token
      * @property Show\Field|Collection id_mitra
+     * @property Show\Field|Collection nama_project_manual
+     * @property Show\Field|Collection sumber_dana
      * @property Show\Field|Collection tokenable_type
      * @property Show\Field|Collection tokenable_id
      * @property Show\Field|Collection abilities
@@ -207,7 +235,6 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection harga
      * @property Show\Field|Collection tanggal_mulai
      * @property Show\Field|Collection tanggal_selesai
-     * @property Show\Field|Collection status
      * @property Show\Field|Collection status_bayar
      * @property Show\Field|Collection no_telp
      * @property Show\Field|Collection atm
@@ -239,9 +266,10 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection password(string $label = null)
      * @method Show\Field|Collection avatar(string $label = null)
      * @method Show\Field|Collection remember_token(string $label = null)
-     * @method Show\Field|Collection id_kas(string $label = null)
-     * @method Show\Field|Collection jumlah(string $label = null)
-     * @method Show\Field|Collection tanggal(string $label = null)
+     * @method Show\Field|Collection id_hutang(string $label = null)
+     * @method Show\Field|Collection id_gaji(string $label = null)
+     * @method Show\Field|Collection nominal_cicilan(string $label = null)
+     * @method Show\Field|Collection tanggal_bayar(string $label = null)
      * @method Show\Field|Collection keterangan(string $label = null)
      * @method Show\Field|Collection uuid(string $label = null)
      * @method Show\Field|Collection connection(string $label = null)
@@ -251,7 +279,14 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection failed_at(string $label = null)
      * @method Show\Field|Collection id_tim(string $label = null)
      * @method Show\Field|Collection id_project(string $label = null)
+     * @method Show\Field|Collection jumlah(string $label = null)
+     * @method Show\Field|Collection tanggal(string $label = null)
      * @method Show\Field|Collection metode_bayar(string $label = null)
+     * @method Show\Field|Collection jumlah_hutang(string $label = null)
+     * @method Show\Field|Collection tanggal_pinjam(string $label = null)
+     * @method Show\Field|Collection sisa_hutang(string $label = null)
+     * @method Show\Field|Collection status(string $label = null)
+     * @method Show\Field|Collection cash(string $label = null)
      * @method Show\Field|Collection saldo_akhir(string $label = null)
      * @method Show\Field|Collection instansi(string $label = null)
      * @method Show\Field|Collection nama(string $label = null)
@@ -262,6 +297,8 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection norek(string $label = null)
      * @method Show\Field|Collection token(string $label = null)
      * @method Show\Field|Collection id_mitra(string $label = null)
+     * @method Show\Field|Collection nama_project_manual(string $label = null)
+     * @method Show\Field|Collection sumber_dana(string $label = null)
      * @method Show\Field|Collection tokenable_type(string $label = null)
      * @method Show\Field|Collection tokenable_id(string $label = null)
      * @method Show\Field|Collection abilities(string $label = null)
@@ -273,7 +310,6 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection harga(string $label = null)
      * @method Show\Field|Collection tanggal_mulai(string $label = null)
      * @method Show\Field|Collection tanggal_selesai(string $label = null)
-     * @method Show\Field|Collection status(string $label = null)
      * @method Show\Field|Collection status_bayar(string $label = null)
      * @method Show\Field|Collection no_telp(string $label = null)
      * @method Show\Field|Collection atm(string $label = null)

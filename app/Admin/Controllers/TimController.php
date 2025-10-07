@@ -31,6 +31,41 @@ class TimController extends AdminController
             $grid->column('gaji', 'Gaji')->display(function ($val) {
                 return 'Rp ' . number_format($val, 0, ',', '.');
             });
+            $grid->column('total_potongan_cicilan', 'Potongan Cicilan')
+    ->display(function ($value) {
+        return 'Rp ' . number_format($value, 0, ',', '.');
+    })
+    ->expand(function () {
+        $cicilan = $this->cicilanHutang()
+            ->select('tanggal_bayar', 'nominal_cicilan')
+            ->orderBy('tanggal_bayar', 'desc')
+            ->get();
+
+        if ($cicilan->isEmpty()) {
+            return "<p style='padding:8px'>Tidak ada data cicilan.</p>";
+        }
+
+        $html = "<table class='table table-sm'>
+                    <thead>
+                        <tr>
+                            <th>Tanggal Bayar</th>
+                            <th>Nominal Cicilan</th>
+                        </tr>
+                    </thead>
+                    <tbody>";
+
+        foreach ($cicilan as $item) {
+            $html .= "<tr>
+                        <td>" . \Carbon\Carbon::parse($item->tanggal_bayar)->translatedFormat('d F Y') . "</td>
+                        <td>Rp " . number_format($item->nominal_cicilan, 0, ',', '.') . "</td>
+                      </tr>";
+        }
+
+        $html .= "</tbody></table>";
+
+        return $html;
+    });
+
 
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $id = $actions->getKey();
@@ -168,24 +203,48 @@ class TimController extends AdminController
         });
     }
     public function slip($id)
-    {
-        $tim = \App\Models\Tim::with(['gajis.project'])->findOrFail($id);
+{
+    $tim = \App\Models\Tim::with(['gajis.project'])->findOrFail($id);
 
-        $bulan = request('bulan', now()->month);
-        $tahun = request('tahun', now()->year);
+    $bulan = request('bulan', now()->month);
+    $tahun = request('tahun', now()->year);
 
-        $gajis = $tim->gajis()
-            ->with('project')
-            ->whereNotNull('id_project')
-            ->whereMonth('tanggal', $bulan)
-            ->whereYear('tanggal', $tahun)
-            ->get();
+    // ✅ Ambil gaji (pendapatan)
+    $gajis = $tim->gajis()
+        ->with('project')
+        ->whereNotNull('id_project')
+        ->whereMonth('tanggal', $bulan)
+        ->whereYear('tanggal', $tahun)
+        ->get();
 
-        $pdf = Pdf::loadView('pdf.slip-gaji', compact('tim', 'gajis', 'bulan', 'tahun'))
-            ->setPaper('A4', 'portrait');
+    // ✅ Ambil potongan (cicilan hutang)
+    $potongans = \App\Models\CicilanHutang::whereHas('hutang', function ($q) use ($tim) {
+        $q->where('id_tim', $tim->id);
+    })
+        ->whereMonth('tanggal_bayar', $bulan)
+        ->whereYear('tanggal_bayar', $tahun)
+        ->get();
 
-        return $pdf->stream("slip-gaji-{$tim->nama}-{$bulan}-{$tahun}.pdf");
-    }
+    // Hitung total
+    $totalPendapatan = $gajis->sum('jumlah');
+    $totalPotongan = $potongans->sum('nominal_cicilan');
+    $gajiBersih = $totalPendapatan - $totalPotongan;
+
+    // Kirim semua data ke PDF
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.slip-gaji', compact(
+        'tim',
+        'gajis',
+        'potongans',
+        'bulan',
+        'tahun',
+        'totalPendapatan',
+        'totalPotongan',
+        'gajiBersih'
+    ))->setPaper('A4', 'portrait');
+
+    return $pdf->stream("slip-gaji-{$tim->nama}-{$bulan}-{$tahun}.pdf");
+}
+
 
 
     public function ambilGaji($id)

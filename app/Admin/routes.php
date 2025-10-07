@@ -12,6 +12,8 @@ use App\Admin\Controllers\TimController;
 use Illuminate\Routing\Router;
 use Dcat\Admin\Admin;
 use Illuminate\Support\Facades\Route;
+use App\Admin\Controllers\hutangController;
+use App\Admin\Controllers\CicilanHutangController;
 
 
 Admin::routes();
@@ -38,6 +40,7 @@ Route::group([
     $router->get('tim/{id}/slip', [TimController::class, 'slip']);
     $router->get('tim/{id}/ambil-gaji', [TimController::class, 'ambilGaji']);
     $router->post('tim/{id}/ambil-gaji', [TimController::class, 'storeAmbilGaji'])->name('tim.store-ambil-gaji');
-    
+    $router->resource('/hutang', hutangController::class);
+    $router->resource('/cicilan-hutang', CicilanHutangController::class);
 });
 

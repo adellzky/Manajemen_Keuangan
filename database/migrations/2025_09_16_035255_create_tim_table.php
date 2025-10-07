@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('atm', 225)->nullable();
             $table->integer('norek')->nullable();
             $table->bigInteger('gaji')->nullable();
+            $table->bigInteger('total_potongan_cicilan')->default(0);
             $table->timestamps();
         });
     }
