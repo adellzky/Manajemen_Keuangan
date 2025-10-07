@@ -37,5 +37,6 @@ class Tim extends Model
         'id'           // local key di tabel hutang
     );
 }
+ 
 
 }

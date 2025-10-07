@@ -26,8 +26,12 @@ class HutangController extends AdminController
             $grid->column('keterangan');
 
             $grid->filter(function (Grid\Filter $filter) {
+                $filter->panel()->expand(false);
                 $filter->like('tim.nama', 'Nama Karyawan');
-                $filter->equal('status')->select(['Belum Lunas', 'Lunas']);
+                $filter->equal('status', 'Status Hutang')->select([
+                    'Belum Lunas' => 'Belum Lunas',
+                    'Lunas' => 'Lunas',
+                ]);
             });
         });
     }
@@ -46,9 +50,29 @@ class HutangController extends AdminController
 
             // Otomatis set nilai sisa_hutang dan status sebelum disimpan
             $form->saving(function (Form $form) {
-                if ($form->isCreating()) {
-                    $form->sisa_hutang = $form->jumlah_hutang;
-                    $form->status = 'Belum Lunas';
+                $tim = Tim::find($form->id_tim);
+
+                if ($tim) {
+                    // Jika karyawan sudah punya hutang belum lunas
+                    $existing = Hutang::where('id_tim', $tim->id)
+                        ->where('status', 'Belum Lunas')
+                        ->first();
+
+                    if ($existing) {
+                        // Tambahkan nominal ke hutang lama
+                        $existing->jumlah_hutang += $form->jumlah_hutang;
+                        $existing->sisa_hutang += $form->jumlah_hutang;
+                        $existing->save();
+
+                        // Batalkan pembuatan record baru
+                        return $form->response()
+                            ->success('Hutang berhasil ditambahkan ke hutang lama.')
+                            ->redirect('hutang');
+                    } else {
+                        // Buat hutang baru seperti biasa
+                        $form->sisa_hutang = $form->jumlah_hutang;
+                        $form->status = 'Belum Lunas';
+                    }
                 }
             });
         });

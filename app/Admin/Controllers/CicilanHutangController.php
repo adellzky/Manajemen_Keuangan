@@ -19,6 +19,12 @@ class CicilanHutangController extends AdminController
             $grid->column('nominal_cicilan', 'Nominal Cicilan')->display(fn($v) => 'Rp ' . number_format($v, 0, ',', '.'));
             $grid->column('tanggal_bayar', 'Tanggal Bayar');
             $grid->column('keterangan');
+
+            $grid->filter(function (Grid\Filter $filter) {
+                $filter->panel()->expand(false);
+                $filter->like('hutang.tim.nama', 'Nama Karyawan'); // filter berdasarkan nama relasi
+                $filter->between('tanggal_bayar', 'Tanggal Bayar')->date();
+            });
         });
     }
 
@@ -46,12 +52,28 @@ class CicilanHutangController extends AdminController
                     return $form->response()->error('Data hutang tidak ditemukan.');
                 }
 
+                // ✅ Ambil data karyawan
+                $tim = $hutang->tim;
+
+                if (!$tim) {
+                    return $form->response()->error('Data karyawan tidak ditemukan.');
+                }
+
+                // ✅ Tambahan validasi gaji
+                if ($form->nominal_cicilan > $tim->gaji) {
+                    return $form->response()->error(
+                        'Gagal! Gaji karyawan saat ini tidak cukup untuk mencicil hutang sebesar Rp ' .
+                            number_format($form->nominal_cicilan, 0, ',', '.') .
+                            '. Sisa gaji: Rp ' . number_format($tim->gaji, 0, ',', '.')
+                    );
+                }
+
                 // ✅ Cegah nominal lebih besar dari sisa hutang
                 if ($form->nominal_cicilan > $hutang->sisa_hutang) {
                     return $form->response()->error('Nominal cicilan tidak boleh lebih besar dari sisa hutang.');
                 }
 
-
+                // ✅ Lanjut update data
                 $hutang->sisa_hutang -= $form->nominal_cicilan;
                 if ($hutang->sisa_hutang <= 0) {
                     $hutang->sisa_hutang = 0;
@@ -59,16 +81,13 @@ class CicilanHutangController extends AdminController
                 }
                 $hutang->save();
 
-
-                $tim = $hutang->tim;
-                if ($tim) {
-                    $tim->total_potongan_cicilan = ($tim->total_potongan_cicilan ?? 0) + $form->nominal_cicilan;
-                    $tim->gaji -= $form->nominal_cicilan;
-                    if ($tim->gaji < 0) {
-                        $tim->gaji = 0; // mencegah minus
-                    }
-                    $tim->save();
+                // ✅ Update data karyawan
+                $tim->total_potongan_cicilan = ($tim->total_potongan_cicilan ?? 0) + $form->nominal_cicilan;
+                $tim->gaji -= $form->nominal_cicilan;
+                if ($tim->gaji < 0) {
+                    $tim->gaji = 0; // mencegah minus
                 }
+                $tim->save();
             });
         });
     }

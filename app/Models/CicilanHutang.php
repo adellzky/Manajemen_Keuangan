@@ -26,4 +26,5 @@ class CicilanHutang extends Model
     {
         return $this->belongsTo(Gaji::class, 'id_gaji');
     }
+
 }
