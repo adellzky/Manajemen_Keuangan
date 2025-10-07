@@ -32,5 +32,18 @@ class Gaji extends Model
         return $this->belongsTo(Project::class, 'id_project');
     }
 
+    protected static function booted()
+    {
+        static::deleted(function ($gaji) {
+            $tim = \App\Models\Tim::find($gaji->id_tim);
+            if ($tim) {
+                $tim->gaji -= $gaji->jumlah;
+                if ($tim->gaji < 0) {
+                    $tim->gaji = 0;
+                }
+                $tim->save();
+            }
+        });
+    }
 }
 

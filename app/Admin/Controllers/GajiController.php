@@ -290,7 +290,7 @@ class GajiController extends AdminController
                 ->whereNull('id_project')
                 ->sum('jumlah');
 
-            $tim->gaji = $gajiProject - $gajiAmbil;
+            $tim->gaji += $amount;
             $tim->save();
             }
         }

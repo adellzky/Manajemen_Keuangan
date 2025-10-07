@@ -309,7 +309,7 @@ class TimController extends AdminController
             ->whereNull('id_project')
             ->sum('jumlah');
 
-        $tim->gaji = $gajiProject - $gajiAmbil;
+        $tim->gaji -= $data['jumlah'];
         $tim->save();
 
         admin_success('Berhasil', "Pengambilan gaji berhasil, sisa gaji Rp " . number_format($tim->gaji, 0, ',', '.'));
