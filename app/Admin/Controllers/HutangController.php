@@ -3,6 +3,8 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Hutang;
+use App\Models\Kas;
+use App\Models\Pengeluaran;
 use App\Models\Tim;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -37,44 +39,65 @@ class HutangController extends AdminController
     }
 
     protected function form()
-    {
-        return Form::make(new Hutang(), function (Form $form) {
-            $form->display('id');
-            $form->select('id_tim', 'Nama Karyawan')->options(Tim::pluck('nama', 'id'))->required();
-            $form->number('jumlah_hutang', 'Jumlah Hutang')->required();
-            $form->date('tanggal_pinjam', 'Tanggal Pinjam')->default(now());
-            $form->textarea('keterangan');
+{
+    return Form::make(new Hutang(), function (Form $form) {
+        $form->display('id');
+        $form->select('id_tim', 'Nama Karyawan')->options(Tim::pluck('nama', 'id'))->required();
+        $form->number('jumlah_hutang', 'Jumlah Hutang')->required();
+        $form->date('tanggal_pinjam', 'Tanggal Pinjam')->default(now());
+        $form->textarea('keterangan');
 
-            $form->hidden('sisa_hutang');
-            $form->hidden('status')->default('Belum Lunas');
+        $form->hidden('sisa_hutang');
+        $form->hidden('status')->default('Belum Lunas');
 
-            // Otomatis set nilai sisa_hutang dan status sebelum disimpan
-            $form->saving(function (Form $form) {
-                $tim = Tim::find($form->id_tim);
+        $form->saving(function (Form $form) {
+            $tim = Tim::find($form->id_tim);
 
-                if ($tim) {
-                    // Jika karyawan sudah punya hutang belum lunas
-                    $existing = Hutang::where('id_tim', $tim->id)
-                        ->where('status', 'Belum Lunas')
-                        ->first();
+            if ($tim) {
+                // Jika masih ada hutang lama
+                $existing = Hutang::where('id_tim', $tim->id)
+                    ->where('status', 'Belum Lunas')
+                    ->first();
 
-                    if ($existing) {
-                        // Tambahkan nominal ke hutang lama
-                        $existing->jumlah_hutang += $form->jumlah_hutang;
-                        $existing->sisa_hutang += $form->jumlah_hutang;
-                        $existing->save();
+                if ($existing) {
+                    $existing->jumlah_hutang += $form->jumlah_hutang;
+                    $existing->sisa_hutang += $form->jumlah_hutang;
+                    $existing->save();
 
-                        // Batalkan pembuatan record baru
-                        return $form->response()
-                            ->success('Hutang berhasil ditambahkan ke hutang lama.')
-                            ->redirect('hutang');
-                    } else {
-                        // Buat hutang baru seperti biasa
-                        $form->sisa_hutang = $form->jumlah_hutang;
-                        $form->status = 'Belum Lunas';
-                    }
+                    // 🔹 Kurangi saldo bank (catat di tabel kas)
+                    Kas::create([
+                        'tanggal' => $form->tanggal_pinjam ?? now(),
+                        'jumlah' => 0,
+                        'cash' => 0,
+                        'keterangan' => 'Penambahan hutang ('.$tim->nama.') sebesar Rp ' . number_format($form->jumlah_hutang, 0, ',', '.'),
+                    ]);
+
+                    Pengeluaran::create([
+                        'tanggal' => $form->tanggal_pinjam ?? now(),
+                        'jumlah' => $form->jumlah_hutang,
+                        'sumber_dana' => 'bank',
+                        'keterangan' => 'Pinjaman kepada ' . $tim->nama,
+                    ]);
+
+                    return $form->response()
+                        ->success('Hutang ditambahkan dan saldo bank dikurangi otomatis.')
+                        ->redirect('hutang');
+                } else {
+                    $form->sisa_hutang = $form->jumlah_hutang;
+                    $form->status = 'Belum Lunas';
+
+                    // 🔹 Kurangi saldo bank (catat pengeluaran baru)
+                    Pengeluaran::create([
+                        'tanggal' => $form->tanggal_pinjam ?? now(),
+                        'jumlah' => $form->jumlah_hutang,
+                        'sumber_dana' => 'bank',
+                        'keterangan' => 'Pinjaman kepada ' . $tim->nama,
+                    ]);
                 }
-            });
+            }
         });
-    }
+    });
+}
+
+
 }

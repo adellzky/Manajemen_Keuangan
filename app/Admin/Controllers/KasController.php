@@ -2,10 +2,12 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\CicilanHutang;
 use App\Models\Kas;
 use App\Models\Pendapatan;
 use App\Models\Pengeluaran;
 use App\Models\Gaji;
+use App\Models\Hutang;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
@@ -25,11 +27,10 @@ class KasController extends AdminController
             $perPage = 10;
             $page = (int) request()->get('page', 1);
 
-            // filter tanggal dari request
             $from = request()->get('from');
             $to   = request()->get('to');
 
-            // ambil semua tanggal unik dari ke-4 tabel (format Y-m-d)
+            // ambil daftar tanggal
             $tanggalList = collect()
                 ->merge(Pendapatan::pluck('tanggal')->toArray())
                 ->merge(Pengeluaran::pluck('tanggal')->toArray())
@@ -38,7 +39,7 @@ class KasController extends AdminController
                 ->filter()
                 ->map(fn($d) => date('Y-m-d', strtotime($d)))
                 ->unique()
-                ->sort() // penting: urut ASC supaya running balance benar
+                ->sort()
                 ->values();
 
             if ($from) {
@@ -49,8 +50,8 @@ class KasController extends AdminController
             }
 
             $rows = [];
-            $bankRunning = 0; // saldo bank kumulatif
-            $cashRunning = 0; // cash kumulatif (total cash ditarik sampai hari tertentu)
+            $bankRunning = 0;
+            $cashRunning = 0;
 
             foreach ($tanggalList as $tgl) {
                 $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
@@ -66,32 +67,26 @@ class KasController extends AdminController
                     ->sum('jumlah');
 
                 $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
+                $hutang = (float) Hutang::whereDate('tanggal_pinjam', $tgl)->sum('jumlah_hutang');
+                $cicilan = (float) CicilanHutang::whereDate('tanggal_bayar', $tgl)->sum('nominal_cicilan');
 
-                // 🔹 Bank
+                // update saldo
                 $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
-
-                // 🔹 Cash realtime (bertambah dari tarik, berkurang dari pengeluaran cash)
                 $cashRunning += ($cashTarik - $pengeluaranCash);
 
-                // 🔹 Simpan row
                 $rows[] = [
                     'id'                => Kas::whereDate('tanggal', $tgl)->value('id'),
                     'tanggal'           => $tgl,
                     'modal'             => $modal,
-                    'cash_tarik'        => $cashTarik,     // cash ditarik hari itu
-                    'cash'              => $cashRunning,   // saldo cash realtime
-                    'total_pendapatan'  => $pendapatan,
-                    'total_pengeluaran' => $pengeluaranBank + $pengeluaranCash,
-                    'total_gaji'        => $gaji,
+                    'cash_tarik'        => $cashTarik,
+                    'cash'              => $cashRunning,
                     'saldo_akhir'       => $bankRunning,
                     'keseluruhan'       => $bankRunning + $cashRunning,
                 ];
             }
 
-            // tampilkan terbaru dulu
             $rows = array_reverse($rows);
 
-            // paginator manual tetap sama
             $items = collect($rows);
             $total = $items->count();
             $slice = $items->slice(($page - 1) * $perPage, $perPage)->values()->all();
@@ -109,36 +104,44 @@ class KasController extends AdminController
 
             $grid->model()->setData($paginator);
 
-            // kolom tetap sama
-            // $grid->column('id', 'ID')->hide();
+            // grid utama
             $grid->column('tanggal', 'Tanggal')->sortable();
-            $grid->column('modal', 'Setor')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-            $grid->column('cash_tarik', 'Tarik Cash')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('modal', 'Setor')->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('cash_tarik', 'Tarik Cash')->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('cash', 'Saldo Cash')->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('saldo_akhir', 'Saldo Bank')->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('keseluruhan', 'Keseluruhan')->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
 
-            $grid->column('cash', 'Saldo Cash')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+            $grid->column('detail', 'Detail')->expand(function () {
+                $tgl = $this->tanggal;
 
-            $grid->column('saldo_akhir', 'Saldo Bank')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-            // $grid->column('total_pendapatan', 'Pendapatan')
-            //     ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-            // $grid->column('total_pengeluaran', 'Pengeluaran')
-            //     ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-            // $grid->column('total_gaji', 'Total Gaji')
-            //     ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
-            $grid->column('keseluruhan', 'Keseluruhan')
-                ->display(fn($val) => 'Rp ' . number_format($val ?? 0, 0, ',', '.'));
+                $pendapatan = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
+                $pengeluaran = (float) Pengeluaran::whereDate('tanggal', $tgl)->sum('jumlah');
+                $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
+                $hutang = (float) Hutang::whereDate('tanggal_pinjam', $tgl)->sum('jumlah_hutang');
+                $cicilan = (float) CicilanHutang::whereDate('tanggal_bayar', $tgl)->sum('nominal_cicilan');
 
+                $html = "
+                    <table class='table table-bordered' style='margin:0;'>
+                        <tr><th width='40%'>Total Pendapatan</th><td>Rp " . number_format($pendapatan, 0, ',', '.') . "</td></tr>
+                        <tr><th>Total Pengeluaran</th><td>Rp " . number_format($pengeluaran, 0, ',', '.') . "</td></tr>
+                        <tr><th>Total Gaji</th><td>Rp " . number_format($gaji, 0, ',', '.') . "</td></tr>
+                        <tr><th>Total Hutang</th><td>Rp " . number_format($hutang, 0, ',', '.') . "</td></tr>
+                        <tr><th>Total Cicilan Hutang</th><td>Rp " . number_format($cicilan, 0, ',', '.') . "</td></tr>
+                    </table>
+                ";
+
+                return $html;
+            });
+
+            // menghilangkan tombol
             $grid->disableCreateButton(false);
             $grid->actions(function (Grid\Displayers\Actions $actions) {
                 $actions->disableView();
                 $actions->disableDelete();
-                // biarkan edit
             });
 
-
+            // filter tanggal dan pdf
             $grid->tools(function (Grid\Tools $tools) {
                 $from = request()->get('from');
                 $to   = request()->get('to');
@@ -158,75 +161,82 @@ class KasController extends AdminController
 
 
     public function exportPdf()
-    {
-        $from = request()->get('from');
-        $to   = request()->get('to');
+{
+    $from = request()->get('from');
+    $to   = request()->get('to');
 
-        $tanggalList = collect()
-            ->merge(Pendapatan::pluck('tanggal')->toArray())
-            ->merge(Pengeluaran::pluck('tanggal')->toArray())
-            ->merge(Gaji::pluck('tanggal')->toArray())
-            ->merge(Kas::pluck('tanggal')->toArray())
-            ->filter()
-            ->map(fn($d) => date('Y-m-d', strtotime($d)))
-            ->unique()
-            ->sort()
-            ->values();
+    $tanggalList = collect()
+        ->merge(Pendapatan::pluck('tanggal')->toArray())
+        ->merge(Pengeluaran::pluck('tanggal')->toArray())
+        ->merge(Gaji::pluck('tanggal')->toArray())
+        ->merge(Hutang::pluck('tanggal_pinjam')->toArray())
+        ->merge(CicilanHutang::pluck('tanggal_bayar')->toArray())
+        ->merge(Kas::pluck('tanggal')->toArray())
+        ->filter()
+        ->map(fn($d) => date('Y-m-d', strtotime($d)))
+        ->unique()
+        ->sort()
+        ->values();
 
-        if ($from) {
-            $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from);
-        }
-        if ($to) {
-            $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to);
-        }
-
-        $rows = [];
-        $bankRunning = 0;
-        $cashRunning = 0;
-
-        foreach ($tanggalList as $tgl) {
-            $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
-            $cashTarik   = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
-            $pendapatan  = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
-
-            $pengeluaranBank = (float) Pengeluaran::whereDate('tanggal', $tgl)
-                ->where('sumber_dana', 'bank')
-                ->sum('jumlah');
-
-            $pengeluaranCash = (float) Pengeluaran::whereDate('tanggal', $tgl)
-                ->where('sumber_dana', 'cash')
-                ->sum('jumlah');
-
-            $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
-
-            // 🔹 Sama seperti grid
-            $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
-            $cashRunning += ($cashTarik - $pengeluaranCash);
-
-            $rows[] = [
-                'tanggal'           => $tgl,
-                'modal'             => $modal,
-                'cash_tarik'        => $cashTarik,
-                'cash'              => $cashRunning,
-                'total_pendapatan'  => $pendapatan,
-                'total_pengeluaran' => $pengeluaranBank + $pengeluaranCash,
-                'total_gaji'        => $gaji,
-                'saldo_akhir'       => $bankRunning,
-                'keseluruhan'       => $bankRunning + $cashRunning,
-            ];
-        }
-
-        $rows = collect($rows)->map(fn($r) => (object) $r);
-
-        $pdf = Pdf::loadView('pdf.kas', [
-                'data' => $rows,
-                'from' => $from,
-                'to'   => $to,
-            ])
-            ->setPaper('a4', 'landscape');
-
-        return $pdf->stream('kas-report.pdf');
+    if ($from) {
+        $tanggalList = $tanggalList->filter(fn($tgl) => $tgl >= $from);
     }
+    if ($to) {
+        $tanggalList = $tanggalList->filter(fn($tgl) => $tgl <= $to);
+    }
+
+    $rows = [];
+    $bankRunning = 0;
+    $cashRunning = 0;
+
+    foreach ($tanggalList as $tgl) {
+        $modal       = (float) Kas::whereDate('tanggal', $tgl)->sum('jumlah');
+        $cashTarik   = (float) Kas::whereDate('tanggal', $tgl)->sum('cash');
+        $pendapatan  = (float) Pendapatan::whereDate('tanggal', $tgl)->sum('jumlah');
+
+        $pengeluaranBank = (float) Pengeluaran::whereDate('tanggal', $tgl)
+            ->where('sumber_dana', 'bank')
+            ->sum('jumlah');
+
+        $pengeluaranCash = (float) Pengeluaran::whereDate('tanggal', $tgl)
+            ->where('sumber_dana', 'cash')
+            ->sum('jumlah');
+
+        $gaji = (float) Gaji::whereDate('tanggal', $tgl)->sum('jumlah');
+
+        $hutang = (float) Hutang::whereDate('tanggal_pinjam', $tgl)->sum('jumlah_hutang');
+        $cicilanHutang = (float) CicilanHutang::whereDate('tanggal_bayar', $tgl)->sum('nominal_cicilan');
+
+        $bankRunning += ($modal + $pendapatan) - ($pengeluaranBank + $gaji + $cashTarik);
+        $cashRunning += ($cashTarik - $pengeluaranCash);
+
+        $rows[] = [
+            'tanggal'            => $tgl,
+            'modal'              => $modal,
+            'cash_tarik'         => $cashTarik,
+            'cash'               => $cashRunning,
+            'total_pendapatan'   => $pendapatan,
+            'total_pengeluaran'  => $pengeluaranBank + $pengeluaranCash,
+            'total_gaji'         => $gaji,
+            'total_hutang'       => $hutang,
+            'total_cicilan'      => $cicilanHutang,
+            'saldo_akhir'        => $bankRunning,
+            'keseluruhan'        => $bankRunning + $cashRunning,
+        ];
+    }
+
+    $rows = collect($rows)->map(fn($r) => (object) $r);
+
+    $pdf = Pdf::loadView('pdf.kas', [
+            'data' => $rows,
+            'from' => $from,
+            'to'   => $to,
+        ])
+        ->setPaper('a4', 'landscape');
+
+    return $pdf->stream('kas-report.pdf');
+}
+
 
     public function detail($id)
     {
@@ -263,7 +273,6 @@ class KasController extends AdminController
 
         $form->textarea('keterangan', 'Keterangan');
 
-        // ❌ jangan simpan saldo ke tabel, cukup tampilkan readonly info
         $form->display('saldo_info', 'Saldo (auto)')
             ->with(function () {
                 $totalPendapatan       = \App\Models\Pendapatan::sum('jumlah');

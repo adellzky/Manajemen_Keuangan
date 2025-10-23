@@ -19,7 +19,7 @@ class HomeController extends Controller
     {
         // Ringkasan umum
         $totalPemasukan   = (float) Pendapatan::sum('jumlah');
-        $totalProject     = Project::where('status', 'proses')->count(); // ✅ hanya yg status = proses
+        $totalProject     = Project::where('status', 'proses')->count(); 
 
         // NOTE: total pengeluaran di dashboard tetap total pengeluaran + gaji
         $totalPengeluaran = (float) Pengeluaran::sum('jumlah') + (float) Gaji::sum('jumlah');

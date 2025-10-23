@@ -22,89 +22,134 @@ class TimController extends AdminController
      * @return Grid
      */
     protected function grid()
-    {
-        return Grid::make(new Tim(), function (Grid $grid) {
-            $grid->column('nama');
-            $grid->column('no_telp');
-            $grid->column('atm');
-            $grid->column('norek');
-            $grid->column('gaji', 'Gaji')->display(function ($val) {
-                return 'Rp ' . number_format($val, 0, ',', '.');
-            });
-            $grid->column('total_potongan_cicilan', 'Potongan Cicilan')
-    ->display(function ($value) {
-        return 'Rp ' . number_format($value, 0, ',', '.');
-    })
-    ->expand(function () {
-        $cicilan = $this->cicilanHutang()
-            ->select('tanggal_bayar', 'nominal_cicilan')
-            ->orderBy('tanggal_bayar', 'desc')
-            ->get();
+{
+    return Grid::make(new Tim(), function (Grid $grid) {
+        $grid->column('nama');
+        $grid->column('no_telp');
+        $grid->column('atm');
+        $grid->column('norek');
 
-        if ($cicilan->isEmpty()) {
-            return "<p style='padding:8px'>Tidak ada data cicilan.</p>";
-        }
-
-        $html = "<table class='table table-sm'>
-                    <thead>
-                        <tr>
-                            <th>Tanggal Bayar</th>
-                            <th>Nominal Cicilan</th>
-                        </tr>
-                    </thead>
-                    <tbody>";
-
-        foreach ($cicilan as $item) {
-            $html .= "<tr>
-                        <td>" . \Carbon\Carbon::parse($item->tanggal_bayar)->translatedFormat('d F Y') . "</td>
-                        <td>Rp " . number_format($item->nominal_cicilan, 0, ',', '.') . "</td>
-                      </tr>";
-        }
-
-        $html .= "</tbody></table>";
-
-        return $html;
-    });
-
-
-            $grid->actions(function (Grid\Displayers\Actions $actions) {
-                $id = $actions->getKey();
-
-                // Tombol slip dengan filter bulan/tahun
-                $actions->append("
-        <form method='GET' action='" . url("admin/tim/$id/slip") . "' target='_blank' style='display:inline'>
-            <select name='bulan' style='padding:2px'>
-                " . collect(range(1, 12))->map(function ($m) {
-                    return "<option value='$m'>" . \Carbon\Carbon::create()->month($m)->translatedFormat('F') . "</option>";
-                })->implode('') . "
-            </select>
-           <select name='tahun' style='padding:2px'>
-                " . collect(range(2025, now()->year + 5))->map(function ($y) {
-                    return "<option value='$y'>$y</option>";
-                })->implode('') . "
-          </select>
-
-            <button type='submit' class='btn btn-sm btn-primary'>
-                <i class='feather icon-file-text'></i> Slip Gaji
-            </button>
-        </form>
-    ");
-
-                // Tombol ambil gaji
-                $actions->append("<a href='" . url("admin/tim/$id/ambil-gaji") . "' class='btn btn-sm btn-warning'>
-        <i class='feather icon-credit-card'></i> Ambil Gaji
-    </a>");
-            });
-
-
-            $grid->filter(function (Grid\Filter $filter) {
-                $filter->panel()->expand(false);
-                $filter->equal('id', 'Nama Karyawan')
-                    ->select(Tim::pluck('nama', 'id'));
-                $filter->between('gaji', 'Range Gaji');
-            });
+        $grid->column('gaji', 'Gaji')->display(function ($val) {
+            return 'Rp ' . number_format($val ?? 0, 0, ',', '.');
         });
-    }
+
+        //  Kolom Total Hutang (dari relasi Hutang)
+        $grid->column('total_hutang', 'Hutang')
+            ->display(function () {
+                $total = $this->hutang()
+                    ->where('status', 'Belum Lunas')
+                    ->sum('sisa_hutang');
+
+                return 'Rp ' . number_format($total ?? 0, 0, ',', '.');
+            })
+            ->expand(function () {
+                $hutangList = $this->hutang()
+                    ->select('tanggal_pinjam', 'jumlah_hutang', 'sisa_hutang', 'status')
+                    ->orderBy('tanggal_pinjam', 'desc')
+                    ->get();
+
+                if ($hutangList->isEmpty()) {
+                    return "<p style='padding:8px'>Tidak ada data hutang.</p>";
+                }
+
+                $html = "<table class='table table-sm'>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal Pinjam</th>
+                                    <th>Jumlah Hutang</th>
+                                    <th>Sisa Hutang</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+
+                foreach ($hutangList as $item) {
+                    $html .= "<tr>
+                                <td>" . \Carbon\Carbon::parse($item->tanggal_pinjam)->translatedFormat('d F Y') . "</td>
+                                <td>Rp " . number_format($item->jumlah_hutang, 0, ',', '.') . "</td>
+                                <td>Rp " . number_format($item->sisa_hutang, 0, ',', '.') . "</td>
+                                <td>" . $item->status . "</td>
+                              </tr>";
+                }
+
+                $html .= "</tbody></table>";
+
+                return $html;
+            });
+
+        $grid->column('total_potongan_cicilan', 'Cicilan')
+            ->display(function ($value) {
+                return 'Rp ' . number_format($value ?? 0, 0, ',', '.');
+            })
+            ->expand(function () {
+                $cicilan = $this->cicilanHutang()
+                    ->select('tanggal_bayar', 'nominal_cicilan')
+                    ->orderBy('tanggal_bayar', 'desc')
+                    ->get();
+
+                if ($cicilan->isEmpty()) {
+                    return "<p style='padding:8px'>Tidak ada data cicilan.</p>";
+                }
+
+                $html = "<table class='table table-sm'>
+                            <thead>
+                                <tr>
+                                    <th>Tanggal Bayar</th>
+                                    <th>Nominal Cicilan</th>
+                                </tr>
+                            </thead>
+                            <tbody>";
+
+                foreach ($cicilan as $item) {
+                    $html .= "<tr>
+                                <td>" . \Carbon\Carbon::parse($item->tanggal_bayar)->translatedFormat('d F Y') . "</td>
+                                <td>Rp " . number_format($item->nominal_cicilan, 0, ',', '.') . "</td>
+                              </tr>";
+                }
+
+                $html .= "</tbody></table>";
+
+                return $html;
+            });
+
+        // Tombol aksi tambahan
+        $grid->actions(function (Grid\Displayers\Actions $actions) {
+            $id = $actions->getKey();
+
+            // Slip gaji
+            $actions->append("
+                <form method='GET' action='" . url("admin/tim/$id/slip") . "' target='_blank' style='display:inline'>
+                    <select name='bulan' style='padding:2px'>
+                        " . collect(range(1, 12))->map(function ($m) {
+                            return "<option value='$m'>" . \Carbon\Carbon::create()->month($m)->translatedFormat('F') . "</option>";
+                        })->implode('') . "
+                    </select>
+                    <select name='tahun' style='padding:2px'>
+                        " . collect(range(2025, now()->year + 5))->map(function ($y) {
+                            return "<option value='$y'>$y</option>";
+                        })->implode('') . "
+                    </select>
+                    <button type='submit' class='btn btn-sm btn-primary'>
+                        <i class='feather icon-file-text'></i> Slip Gaji
+                    </button>
+                </form>
+            ");
+
+            // Tombol ambil gaji
+            $actions->append("<a href='" . url("admin/tim/$id/ambil-gaji") . "' class='btn btn-sm btn-warning'>
+                <i class='feather icon-credit-card'></i> Ambil Gaji
+            </a>");
+        });
+
+        //  Filter
+        $grid->filter(function (Grid\Filter $filter) {
+            $filter->panel()->expand(false);
+            $filter->equal('id', 'Nama Karyawan')->select(Tim::pluck('nama', 'id'));
+            $filter->between('gaji', 'Range Gaji');
+        });
+    });
+}
+
 
     /**
      * Make a show builder.

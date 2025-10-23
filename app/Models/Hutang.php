@@ -23,8 +23,9 @@ class Hutang extends Model
         return $this->belongsTo(Tim::class, 'id_tim');
     }
 
-    public function cicilan()
+    public function cicilanHutang()
     {
         return $this->hasMany(CicilanHutang::class, 'id_hutang');
     }
+    
 }

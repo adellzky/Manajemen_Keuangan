@@ -88,6 +88,8 @@
                 <th>Pendapatan</th>
                 <th>Pengeluaran</th>
                 <th>Total Gaji</th>
+                <th>Total Hutang</th>          {{-- ✅ baru --}}
+                <th>Total Cicilan Hutang</th>   {{-- ✅ baru --}}
                 <th>Keseluruhan</th>
             </tr>
         </thead>
@@ -102,6 +104,8 @@
                     <td>Rp {{ number_format($item->total_pendapatan, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->total_pengeluaran, 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($item->total_gaji, 0, ',', '.') }}</td>
+                    <td>Rp {{ number_format($item->total_hutang ?? 0, 0, ',', '.') }}</td>         {{-- ✅ baru --}}
+                    <td>Rp {{ number_format($item->total_cicilan ?? 0, 0, ',', '.') }}</td>        {{-- ✅ baru --}}
                     <td>Rp {{ number_format($item->keseluruhan, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
