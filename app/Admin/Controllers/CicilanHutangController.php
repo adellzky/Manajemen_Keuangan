@@ -39,69 +39,73 @@ class CicilanHutangController extends AdminController
 
             $form->select('id_hutang', 'Pilih Hutang')->options(
                 Hutang::with('tim')
-                    ->where('status', 'Belum Lunas') // ✅ hanya tampilkan hutang yang belum lunas
+                    ->where('sisa_hutang', '>', 0) // hanya tampilkan hutang yang belum lunas
                     ->get()
                     ->mapWithKeys(function ($item) {
                         return [
                             $item->id => $item->tim->nama . ' - Sisa Hutang: Rp' . number_format($item->sisa_hutang, 0, ',', '.')
                         ];
                     })
-            )->required();
-
+            )
+                ->required();
 
             $form->number('nominal_cicilan', 'Nominal Cicilan')->required();
             $form->date('tanggal_bayar', 'Tanggal Bayar')->default(now());
             $form->textarea('keterangan');
 
-            // 🔧 Update otomatis saat cicilan disimpan
             $form->saving(function (Form $form) {
                 $hutang = Hutang::with('tim')->find($form->id_hutang);
-
                 if (!$hutang) {
                     return $form->response()->error('Data hutang tidak ditemukan.');
                 }
 
                 $tim = $hutang->tim;
-
                 if (!$tim) {
                     return $form->response()->error('Data karyawan tidak ditemukan.');
                 }
 
-                // Validasi: nominal cicilan tidak boleh melebihi sisa hutang
-                if ($form->nominal_cicilan > $hutang->sisa_hutang) {
-                    return $form->response()->error('Nominal cicilan tidak boleh lebih besar dari sisa hutang.');
+                // ✅ Ambil nilai cicilan lama (jika sedang edit)
+                $oldCicilan = $form->model()->exists ? $form->model()->nominal_cicilan : 0;
+                $selisih = $form->nominal_cicilan - $oldCicilan;
+
+                // Jika cicilan naik, pastikan tidak melebihi sisa hutang
+                if ($selisih > 0 && $selisih > $hutang->sisa_hutang) {
+                    return $form->response()->error('Nominal cicilan baru melebihi sisa hutang.');
                 }
 
-                // Kurangi sisa hutang
-                $hutang->sisa_hutang -= $form->nominal_cicilan;
+                // 🔄 Update nilai sisa hutang
+                $hutang->sisa_hutang -= $selisih; // bisa positif atau negatif (naik/turun)
                 if ($hutang->sisa_hutang <= 0) {
                     $hutang->sisa_hutang = 0;
                     $hutang->status = 'Lunas';
+                } elseif ($hutang->status === 'Lunas' && $hutang->sisa_hutang > 0) {
+                    $hutang->status = 'Belum Lunas';
                 }
                 $hutang->save();
 
-                // Tambahkan ke kas (karena cicilan = uang masuk)
-                Kas::create([
-                    'tanggal' => $form->tanggal_bayar ?? now(),
-                    'jumlah' => $form->nominal_cicilan, // uang masuk
-                    'cash' => 0,
-                    'keterangan' => 'Pembayaran cicilan hutang oleh ' . $tim->nama . ' sebesar Rp ' . number_format($form->nominal_cicilan, 0, ',', '.'),
-                ]);
-
-                //  Update saldo kas terakhir
-                $lastKas = Kas::orderByDesc('id')->first();
-                if ($lastKas) {
-                    $lastKas->saldo_akhir = ($lastKas->saldo_akhir ?? 0) + $form->nominal_cicilan;
-                    $lastKas->save();
-                }
-
-                // 🔹 Kurangi gaji karyawan sesuai nominal cicilan
-                $tim->gaji = max(0, ($tim->gaji ?? 0) - $form->nominal_cicilan);
-
-                // 🔹 Simpan total potongan cicilan untuk catatan
-                $tim->total_potongan_cicilan = ($tim->total_potongan_cicilan ?? 0) + $form->nominal_cicilan;
-
+                // 🔹 Update gaji & potongan cicilan
+                $tim->gaji = max(0, ($tim->gaji ?? 0) - $selisih);
+                $tim->total_potongan_cicilan = ($tim->total_potongan_cicilan ?? 0) + $selisih;
                 $tim->save();
+
+                // 🔸 Catat perubahan di Kas hanya jika ada selisih
+                if ($selisih != 0) {
+                    Kas::create([
+                        'tanggal' => $form->tanggal_bayar ?? now(),
+                        'jumlah' => $selisih,
+                        'cash' => 0,
+                        'keterangan' => 'Perubahan cicilan hutang oleh ' . $tim->nama .
+                            ' sebesar Rp ' . number_format($selisih, 0, ',', '.') .
+                            ' (Edit Cicilan)',
+                    ]);
+
+                    // Update saldo kas terakhir
+                    $lastKas = Kas::orderByDesc('id')->first();
+                    if ($lastKas) {
+                        $lastKas->saldo_akhir = ($lastKas->saldo_akhir ?? 0) + $selisih;
+                        $lastKas->save();
+                    }
+                }
             });
         });
     }
