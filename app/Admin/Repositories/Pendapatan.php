@@ -5,12 +5,9 @@ namespace App\Admin\Repositories;
 use App\Models\Pendapatan as Model;
 use Dcat\Admin\Repositories\EloquentRepository;
 
-class Pendapatan extends EloquentRepository
+class Pendapatan extends Model
 {
-    /**
-     * Model.
-     *
-     * @var string
-     */
-    protected $eloquentClass = Model::class;
+    protected $table = 'pendapatan';
+    protected $primaryKey = 'id';
 }
+
