@@ -11,7 +11,7 @@ return [
     | login page.
     |
     */
-    'name' => 'Dcat Admin',
+    'name' => 'Ironativ SoftDev',
 
     /*
     |--------------------------------------------------------------------------
@@ -22,7 +22,8 @@ return [
     | `img` tag, eg '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo' => '<img src="/vendor/dcat-admin/images/logo.png" width="35"> &nbsp;Dcat Admin',
+    'logo' => '<img src="/vendor/dcat-admin/images/iro.png" width="100"> &nbsp; Ironativ',
+
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +35,7 @@ return [
     | '<img src="http://logo-url" alt="Admin logo">'.
     |
     */
-    'logo-mini' => '<img src="/vendor/dcat-admin/images/logo.png">',
+    'logo-mini' => 'Ironativ">',
 
     /*
     |--------------------------------------------------------------------------
