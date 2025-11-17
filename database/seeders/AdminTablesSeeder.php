@@ -22,74 +22,74 @@ class AdminTablesSeeder extends Seeder
                 [
                     "id" => 2,
                     "parent_id" => 0,
-                    "order" => 11,
+                    "order" => 13,
                     "title" => "Admin",
                     "icon" => "feather icon-settings",
                     "uri" => "",
                     "extension" => "",
-                    "show" => 1,
+                    "show" => 0,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:26:34"
                 ],
                 [
                     "id" => 3,
                     "parent_id" => 2,
-                    "order" => 12,
+                    "order" => 14,
                     "title" => "Users",
                     "icon" => "",
                     "uri" => "auth/users",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:03:46"
                 ],
                 [
                     "id" => 4,
                     "parent_id" => 2,
-                    "order" => 13,
+                    "order" => 15,
                     "title" => "Roles",
                     "icon" => "",
                     "uri" => "auth/roles",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:03:46"
                 ],
                 [
                     "id" => 5,
                     "parent_id" => 2,
-                    "order" => 14,
+                    "order" => 16,
                     "title" => "Permission",
                     "icon" => "",
                     "uri" => "auth/permissions",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:03:46"
                 ],
                 [
                     "id" => 6,
                     "parent_id" => 2,
-                    "order" => 15,
+                    "order" => 17,
                     "title" => "Menu",
                     "icon" => "",
                     "uri" => "auth/menu",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:03:46"
                 ],
                 [
                     "id" => 7,
                     "parent_id" => 2,
-                    "order" => 16,
+                    "order" => 18,
                     "title" => "Extensions",
                     "icon" => "",
                     "uri" => "auth/extensions",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:03:32",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 12:03:46"
                 ],
                 [
                     "id" => 9,
@@ -120,12 +120,12 @@ class AdminTablesSeeder extends Seeder
                     "parent_id" => 19,
                     "order" => 10,
                     "title" => "Gaji",
-                    "icon" => "fa-cc",
+                    "icon" => "fa-credit-card-alt",
                     "uri" => "/gaji",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-16 04:28:21",
-                    "updated_at" => "2025-09-25 11:49:30"
+                    "updated_at" => "2025-11-17 10:50:11"
                 ],
                 [
                     "id" => 14,
@@ -191,13 +191,13 @@ class AdminTablesSeeder extends Seeder
                     "id" => 22,
                     "parent_id" => 0,
                     "order" => 1,
-                    "title" => "Keuangan Ironative",
+                    "title" => "Keuangan Ironativ",
                     "icon" => "fa-bank",
                     "uri" => "/keuangan",
                     "extension" => "",
                     "show" => 1,
                     "created_at" => "2025-09-25 11:47:04",
-                    "updated_at" => "2025-09-29 10:34:53"
+                    "updated_at" => "2025-11-17 12:03:14"
                 ],
                 [
                     "id" => 23,
@@ -210,6 +210,30 @@ class AdminTablesSeeder extends Seeder
                     "show" => 1,
                     "created_at" => "2025-09-25 11:48:08",
                     "updated_at" => "2025-09-29 10:34:53"
+                ],
+                [
+                    "id" => 24,
+                    "parent_id" => 19,
+                    "order" => 11,
+                    "title" => "Hutang",
+                    "icon" => "fa-cc",
+                    "uri" => "/hutang",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 12:03:46"
+                ],
+                [
+                    "id" => 25,
+                    "parent_id" => 19,
+                    "order" => 12,
+                    "title" => "Cicilan Hutang",
+                    "icon" => "fa-money",
+                    "uri" => "/cicilan-hutang",
+                    "extension" => "",
+                    "show" => 1,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 12:03:46"
                 ]
             ]
         );
@@ -324,7 +348,78 @@ class AdminTablesSeeder extends Seeder
         DB::table('admin_permission_menu')->truncate();
 		DB::table('admin_permission_menu')->insert(
 			[
-
+                [
+                    "permission_id" => 1,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 1,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ],
+                [
+                    "permission_id" => 2,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 2,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ],
+                [
+                    "permission_id" => 3,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 3,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ],
+                [
+                    "permission_id" => 4,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 4,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ],
+                [
+                    "permission_id" => 5,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 5,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ],
+                [
+                    "permission_id" => 6,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "permission_id" => 6,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
+                ]
             ]
 		);
 
@@ -384,6 +479,18 @@ class AdminTablesSeeder extends Seeder
                     "menu_id" => 23,
                     "created_at" => "2025-09-25 11:48:08",
                     "updated_at" => "2025-09-25 11:48:08"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 24,
+                    "created_at" => "2025-11-17 10:48:38",
+                    "updated_at" => "2025-11-17 10:48:38"
+                ],
+                [
+                    "role_id" => 1,
+                    "menu_id" => 25,
+                    "created_at" => "2025-11-17 10:49:42",
+                    "updated_at" => "2025-11-17 10:49:42"
                 ]
             ]
         );
