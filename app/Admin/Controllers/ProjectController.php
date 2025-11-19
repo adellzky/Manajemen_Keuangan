@@ -99,7 +99,7 @@ class ProjectController extends AdminController
                 ->options([
                     'Jasa'  => 'Jasa',
                     'Produk' => 'Produk',
-                ])->default('Proses')->required();
+                ])->default('Jasa')->required();
             $form->text('nama_project');
             $form->textarea('deskripsi');
             $form->currency('harga', 'Harga')

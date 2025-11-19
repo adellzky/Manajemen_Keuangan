@@ -7,6 +7,7 @@ use App\Models\Kas;
 use App\Models\Pendapatan;
 use App\Models\Pengeluaran;
 use App\Models\Project;
+use Carbon\Carbon;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
@@ -32,14 +33,87 @@ class KeuanganController extends AdminController
             $grid->column('nama_project', 'Nama Project');
 
             $grid->column('pendapatan_sum_jumlah', 'Total Pendapatan')
-                ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
+                ->display(function ($val) {
+                    return number_format($val ?? 0, 0, ',', '.');
+                })
+                ->expand(function () {
+
+                    $pendapatan = Pendapatan::where('id_project', $this->id)
+                        ->orderBy('tanggal', 'desc')
+                        ->get();
+
+                    if ($pendapatan->isEmpty()) {
+                        return "<p style='padding:8px'>Tidak ada data pendapatan.</p>";
+                    }
+
+                    $html = "<h4>Detail Pendapatan</h4>
+                    <table class='table table-sm'>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jumlah</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>";
+
+                    foreach ($pendapatan as $item) {
+                        $html .= "
+                            <tr>
+                                <td>" . Carbon::parse($item->tanggal)->format('d-m-Y') . "</td>
+                                <td>Rp " . number_format($item->jumlah, 0, ',', '.') . "</td>
+                                <td>" . ($item->keterangan ?: '-') . "</td>
+                            </tr>";
+                    }
+
+                    $html .= "</tbody></table>";
+
+                    return $html;
+            });
 
             $grid->column('pengeluaran_sum_jumlah', 'Total Pengeluaran')
-                ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
+                ->display(function ($val) {
+                    return number_format($val ?? 0, 0, ',', '.');
+                })
+                ->expand(function () {
+
+                    $pengeluaran = Pengeluaran::where('id_project', $this->id)
+                        ->orderBy('tanggal', 'desc')
+                        ->get();
+
+                    if ($pengeluaran->isEmpty()) {
+                        return "<p style='padding:8px'>Tidak ada data pengeluaran.</p>";
+                    }
+
+                    $html = "<h4>Detail Pengeluaran</h4>
+                    <table class='table table-sm'>
+                        <thead>
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jumlah</th>
+                                <th>Sumber Dana</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>";
+
+                    foreach ($pengeluaran as $item) {
+                        $html .= "
+                            <tr>
+                                <td>" . Carbon::parse($item->tanggal)->format('d-m-Y') . "</td>
+                                <td>Rp " . number_format($item->jumlah, 0, ',', '.') . "</td>
+                                <td>" . strtoupper($item->sumber_dana) . "</td>
+                                <td>" . ($item->keterangan ?: '-') . "</td>
+                            </tr>";
+                    }
+
+                    $html .= "</tbody></table>";
+
+                    return $html;
+            });
 
             $grid->column('gaji_sum_jumlah', 'Gaji')
                 ->display(fn($val) => number_format($val ?? 0, 0, ',', '.'));
-
 
             // Sisa = (Pendapatan + Kas) - (Pengeluaran + Gaji)
             $grid->column('sisa', 'Saldo')->display(function () {
