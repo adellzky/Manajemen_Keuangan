@@ -9,6 +9,7 @@ use App\Models\Pendapatan as PendapatanModel;
 use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
+use Dcat\Admin\Admin; 
 use Dcat\Admin\Http\Controllers\AdminController;
 use Barryvdh\DomPDF\Facade\Pdf;
 
@@ -56,6 +57,20 @@ class PendapatanController extends AdminController
     protected function form()
     {
         return Form::make(new Pendapatan(), function (Form $form) {
+            $projectMap = Project::pluck('id_mitra', 'id'); 
+            $projectMapJson = json_encode($projectMap);
+            $script = <<<JS
+                var projectToMitra = {$projectMapJson};
+                $('select[name="id_project"]').on('change', function() {
+                    var projectId = $(this).val();
+                    if (projectId && projectToMitra[projectId]) {
+                        $('select[name="id_mitra"]').val(projectToMitra[projectId]).trigger('change');
+                    }
+                });
+            JS;
+
+            Admin::script($script);
+
             $form->select('id_project', 'Project')
                 ->options(Project::pluck('nama_project', 'id')->toArray())
                 ->required();
@@ -73,30 +88,26 @@ class PendapatanController extends AdminController
     }
 
     public function exportPdf()
-{
-    $query = PendapatanModel::with(['project', 'mitra']);
+    {
+        $query = PendapatanModel::with(['project', 'mitra']);
 
-    // Filter by project (pakai id_project)
-    if (request()->filled('id_project')) {
-        $query->where('id_project', request('id_project'));
+        if (request()->filled('id_project')) {
+            $query->where('id_project', request('id_project'));
+        }
+
+        if (request()->filled('id_mitra')) {
+            $query->where('id_mitra', request('id_mitra'));
+        }
+
+        if (request()->filled('tanggal.start') && request()->filled('tanggal.end')) {
+            $query->whereBetween('tanggal', [request('tanggal.start'), request('tanggal.end')]);
+        }
+
+        $data = $query->get();
+
+        $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->download('laporan-pendapatan.pdf');
     }
-
-    // Filter by mitra (pakai id_mitra)
-    if (request()->filled('id_mitra')) {
-        $query->where('id_mitra', request('id_mitra'));
-    }
-
-    // Filter by tanggal
-    if (request()->filled('tanggal.start') && request()->filled('tanggal.end')) {
-        $query->whereBetween('tanggal', [request('tanggal.start'), request('tanggal.end')]);
-    }
-
-    $data = $query->get();
-
-    $pdf = Pdf::loadView('pdf.pendapatan', compact('data'))
-        ->setPaper('a4', 'portrait');
-
-    return $pdf->download('laporan-pendapatan.pdf');
-}
-
 }
